@@ -45,6 +45,26 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void SpotFilters_Brightness_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            SpotFilters.BrightnessFilter filter = new SpotFilters.BrightnessFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void SpotFilters_Shift_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            SpotFilters.ShiftFilter filter = new SpotFilters.ShiftFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.BlurFilter filter = new MatrixFilters.BlurFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void MatrixFilters_MotionBlur_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.MotionBlurFilter filter = new MatrixFilters.MotionBlurFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e) {
             Bitmap new_image = ((Filter)e.Argument).processImage(image, backgroundWorker1);
             if (backgroundWorker1.CancellationPending != true) {
@@ -67,6 +87,5 @@ namespace PhotoEditor {
         private void Cancel_Click(object sender, EventArgs e) {
             backgroundWorker1.CancelAsync();
         }
-
     }
 }
