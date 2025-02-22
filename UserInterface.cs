@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace PhotoEditor {
     public partial class UserInterface : Form {
+
         Bitmap image;
         public UserInterface() {
             InitializeComponent();
@@ -121,8 +122,18 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void MatrixFilters_Median_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.MedianFilter filter = new MatrixFilters.MedianFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
         private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
             AdvancedFilters.EmbossingFilter filter = new AdvancedFilters.EmbossingFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void AdvancedFilters_Paper_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            AdvancedFilters.PaperFilter filter = new AdvancedFilters.PaperFilter();
             backgroundWorker1.RunWorkerAsync(filter);
         }
 

@@ -345,7 +345,10 @@ namespace PhotoEditor {
                 }
             }
 
-            return getCorrectColor(255, (int)result_R, (int)result_G, (int)result_B);
+            return getCorrectColor(255,
+                                   (int)result_R,
+                                   (int)result_G,
+                                   (int)result_B);
         }
     }
 
@@ -391,6 +394,117 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
         }
+
+        namespace MedianCore {
+            class MidianFilterFunctions {
+
+                public static int[] lower_buffer;
+                public static int[] upper_buffer;
+
+                public static int s1, s2;
+                public static int equal_cnt;
+
+                public static int findOrderStatistic(int[] array, int k) {
+
+                    int l = 0;
+                    int r = array.Length;
+
+                    lower_buffer = new int[r];
+                    upper_buffer = new int[r];
+
+                    while (r - l > 1) {
+
+                        int x = array[l];
+                        s1 = s2 = 0;
+                        equal_cnt = 0;
+
+                        for (int i = l; i < r; i++) {
+                            if (array[i] < x) {
+                                lower_buffer[s1++] = array[i];
+                            }
+                            else if (array[i] > x) {
+                                upper_buffer[s2++] = array[i];
+                            }
+                            else {
+                                ++equal_cnt;
+                            }
+                        }
+
+                        if (k < s1) {
+
+                            l = 0;
+                            r = s1;
+
+                            for (int i = 0; i < s1; i++) {
+                                array[i] = lower_buffer[i];
+                            }
+
+                        }
+                        else if (k < s1 + equal_cnt) {
+                            return x;
+                        }
+                        else {
+                            l = s1 + equal_cnt;
+                            r = s1 + equal_cnt + s2;
+
+                            for (int i = 0; i < s2; i++) {
+                                array[s1 + equal_cnt + i] = upper_buffer[i];
+                            }
+
+                            k -= s1 + equal_cnt;
+                        }
+                    }
+
+                    return array[l];
+                }
+            }
+        }
+
+        class MedianFilter : MatrixFilter {
+
+            public static string name = "Median";
+
+            public MedianFilter(int radius = 1) {
+
+                kernel_width = radius * 2 + 1;
+                kernel_height = radius * 2 + 1;
+
+                base_dx = -radius;
+                base_dy = -radius;
+            }
+
+            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
+
+                int[] colors_R = new int[kernel_width * kernel_height];
+                int[] colors_G = new int[kernel_width * kernel_height];
+                int[] colors_B = new int[kernel_width * kernel_height];
+
+                int p = 0;
+                for (int dx = 0; dx < kernel_width; dx++) {
+                    for (int dy = 0; dy < kernel_height; dy++) {
+
+                        int nx = clamp(x + base_dx + dx, 0, source_image.Width - 1);
+                        int ny = clamp(y + base_dy + dy, 0, source_image.Height - 1);
+
+                        Color neighbor_color = source_image.GetPixel(nx, ny);
+
+                        colors_R[p] = neighbor_color.R;
+                        colors_G[p] = neighbor_color.G;
+                        colors_B[p] = neighbor_color.B;
+
+                        ++p;
+                    }
+                }
+                int result_R = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
+                int result_G = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
+                int result_B = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
+
+                return getCorrectColor(255,
+                                       result_R,
+                                       result_G,
+                                       result_B);
+            }
+        }
     }
 
     abstract class AdvancedFilter : Filter {
@@ -412,15 +526,14 @@ namespace PhotoEditor {
 
             return result_image;
         }
-
     }
 
     namespace AdvancedFilters {
 
         namespace EmbossingCore {
 
-            class EmbrossingCoreFilter1: MatrixFilter {
-                public EmbrossingCoreFilter1() {
+            class EmbossingCoreFilter1: MatrixFilter {
+                public EmbossingCoreFilter1() {
                     kernel_width = 3;
                     kernel_height = 3;
 
@@ -449,9 +562,22 @@ namespace PhotoEditor {
 
             public EmbossingFilter() {
                 filters = new Filter[] {
-                    new EmbrossingCoreFilter1(),
+                    new EmbossingCoreFilter1(),
                     new BrightnessFilter(100),
                     new GrayScaleFilter(),
+                };
+            }
+        }
+
+        class PaperFilter : AdvancedFilter {
+
+            public static string name = "Paper";
+
+            public PaperFilter() {
+                filters = new Filter[] {
+                    new EmbossingFilter(),
+                    new AutolevelsFilter(),
+                    new InversionFilter(),
                 };
             }
         }
