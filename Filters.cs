@@ -53,9 +53,11 @@ namespace PhotoEditor {
     }
 
     namespace SpotFilters {
-        class InvertFilter : SpotFilter {
+        class InversionFilter : SpotFilter {
 
-            public InvertFilter() {
+            public static string name = "Inversion"; 
+
+            public InversionFilter() {
 
             }
 
@@ -71,6 +73,8 @@ namespace PhotoEditor {
         }
 
         class GrayScaleFilter : SpotFilter {
+
+            public static string name = "GrayScale";
 
             public GrayScaleFilter() {
 
@@ -90,6 +94,8 @@ namespace PhotoEditor {
         }
 
         class SepiaFilter: SpotFilter {
+
+            public static string name = "Sepia";
 
             protected int sepia_strength;
 
@@ -112,6 +118,8 @@ namespace PhotoEditor {
 
         class BrightnessFilter: SpotFilter {
 
+            public static string name = "Brightness";
+
             protected int brightness_delta;
 
             public BrightnessFilter(int brightness_delta = 20) {
@@ -130,6 +138,8 @@ namespace PhotoEditor {
 
         class ShiftFilter : SpotFilter {
 
+            public static string name = "Shift";
+
             protected int dx, dy;
 
             public ShiftFilter(int dx = -50, int dy = 50) {
@@ -146,6 +156,8 @@ namespace PhotoEditor {
         }
 
         class GrayWorldFilter : SpotFilter {
+
+            public static string name = "GrayWorld";
 
             protected float average_R, average_G, average_B;
             protected float average;
@@ -202,6 +214,8 @@ namespace PhotoEditor {
 
         class AutolevelsFilter: SpotFilter {
 
+            public static string name = "Autolevels";
+
             protected int min_R, min_G, min_B;
             protected int max_R, max_G, max_B;
 
@@ -256,6 +270,8 @@ namespace PhotoEditor {
         }
 
         class PerfectReflectorFilter: SpotFilter {
+
+            public static string name = "PerfectReflector";
 
             protected int max_R, max_G, max_B;
 
@@ -336,6 +352,8 @@ namespace PhotoEditor {
     namespace MatrixFilters {
         class BlurFilter : MatrixFilter {
 
+            public static string name = "Blur";
+
             public BlurFilter(int radius = 1) {
 
                 kernel_width = radius * 2 + 1;
@@ -355,6 +373,8 @@ namespace PhotoEditor {
         }
 
         class MotionBlurFilter : MatrixFilter {
+
+            public static string name = "MotionBlur";
 
             public MotionBlurFilter(int radius = 1) {
 
@@ -398,6 +418,7 @@ namespace PhotoEditor {
     namespace AdvancedFilters {
 
         namespace EmbossingCore {
+
             class EmbrossingCoreFilter1: MatrixFilter {
                 public EmbrossingCoreFilter1() {
                     kernel_width = 3;
@@ -423,6 +444,9 @@ namespace PhotoEditor {
         }
 
         class EmbossingFilter: AdvancedFilter {
+
+            public static string name = "Embossing";
+
             public EmbossingFilter() {
                 filters = new Filter[] {
                     new EmbrossingCoreFilter1(),

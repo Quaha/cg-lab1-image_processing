@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,14 +16,54 @@ namespace PhotoEditor {
             InitializeComponent();
         }
 
-        private void Open_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Image files|*.png;*.jpg;*.bmp|All files(*.*)|*.*";
+        private void File_Open_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            using (OpenFileDialog dialog = new OpenFileDialog()) {
 
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                image = new Bitmap(dialog.FileName);
-                pictureBox1.Image = image;
-                pictureBox1.Refresh();
+                dialog.Filter = "Image files|*.png;*.jpg;*.bmp|All files(*.*)|*.*";
+                dialog.Title = "Open an image in the editor";
+
+                if (dialog.ShowDialog() == DialogResult.OK) {
+                    image = new Bitmap(dialog.FileName);
+                    pictureBox1.Image = image;
+                    pictureBox1.Refresh();
+                }
+            }
+        }
+
+        private void File_SaveAs_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            using (SaveFileDialog dialog = new SaveFileDialog()) {
+
+                if (image == null) {
+                    MessageBox.Show(
+                        "The image is missing!",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return;
+                }
+
+                dialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg|BMP Image|*.bmp";
+                dialog.Title = "Save the image as...";
+                dialog.FileName = "image.png";
+                dialog.DefaultExt = "png";
+
+                if (dialog.ShowDialog() == DialogResult.OK) {
+                    ImageFormat format = ImageFormat.Png;
+                    switch (dialog.FilterIndex) {
+                        case 1:
+                            format = ImageFormat.Png;
+                            break;
+                        case 2:
+                            format = ImageFormat.Jpeg;
+                            break;
+                        case 3:
+                            format = ImageFormat.Bmp;
+                            break;
+                    }
+
+                    image.Save(dialog.FileName, format);
+                }
             }
         }
 
@@ -31,7 +72,7 @@ namespace PhotoEditor {
         }
 
         private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.InvertFilter filter = new SpotFilters.InvertFilter();
+            SpotFilters.InversionFilter filter = new SpotFilters.InversionFilter();
             backgroundWorker1.RunWorkerAsync(filter);
         }
 

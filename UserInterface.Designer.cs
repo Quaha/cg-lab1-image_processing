@@ -40,6 +40,7 @@
             this.shiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grayWorldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autolevelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.perfectReflectorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.матричныеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.motionBlurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,7 +50,7 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button1 = new System.Windows.Forms.Button();
-            this.perfectReflectorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -68,7 +69,8 @@
             // файлToolStripMenuItem
             // 
             this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.открытьToolStripMenuItem});
+            this.открытьToolStripMenuItem,
+            this.saveAsToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.файлToolStripMenuItem.Text = "File";
@@ -76,9 +78,9 @@
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.открытьToolStripMenuItem.Text = "Open";
-            this.открытьToolStripMenuItem.Click += new System.EventHandler(this.Open_ToolStripMenuItem_Click);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.открытьToolStripMenuItem.Text = "Open...";
+            this.открытьToolStripMenuItem.Click += new System.EventHandler(this.File_Open_ToolStripMenuItem_Click);
             // 
             // фильтрыToolStripMenuItem
             // 
@@ -153,6 +155,13 @@
             this.autolevelsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autolevelsToolStripMenuItem.Text = "Autolevels";
             this.autolevelsToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Autolevels_ToolStripMenuItem_Click);
+            // 
+            // perfectReflectorToolStripMenuItem
+            // 
+            this.perfectReflectorToolStripMenuItem.Name = "perfectReflectorToolStripMenuItem";
+            this.perfectReflectorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.perfectReflectorToolStripMenuItem.Text = "PerfectReflector";
+            this.perfectReflectorToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_PerfectReflector_ToolStripMenuItem_Click);
             // 
             // матричныеToolStripMenuItem
             // 
@@ -232,12 +241,12 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Cancel_Click);
             // 
-            // perfectReflectorToolStripMenuItem
+            // saveAsToolStripMenuItem
             // 
-            this.perfectReflectorToolStripMenuItem.Name = "perfectReflectorToolStripMenuItem";
-            this.perfectReflectorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.perfectReflectorToolStripMenuItem.Text = "PerfectReflector";
-            this.perfectReflectorToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_PerfectReflector_ToolStripMenuItem_Click);
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Text = "Save as...";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.File_SaveAs_ToolStripMenuItem_Click);
             // 
             // UserInterface
             // 
@@ -285,6 +294,7 @@
         private System.Windows.Forms.ToolStripMenuItem grayWorldToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autolevelsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem perfectReflectorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
     }
 }
 
