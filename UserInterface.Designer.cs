@@ -38,14 +38,18 @@
             this.sepiaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.brightnessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.grayWorldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autolevelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.матричныеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.motionBlurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.advancedFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.embossingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button1 = new System.Windows.Forms.Button();
-            this.motionBlurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.perfectReflectorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -93,7 +97,10 @@
             this.grayScaleToolStripMenuItem,
             this.sepiaToolStripMenuItem,
             this.brightnessToolStripMenuItem,
-            this.shiftToolStripMenuItem});
+            this.shiftToolStripMenuItem,
+            this.grayWorldToolStripMenuItem,
+            this.autolevelsToolStripMenuItem,
+            this.perfectReflectorToolStripMenuItem});
             this.точечныеToolStripMenuItem.Name = "точечныеToolStripMenuItem";
             this.точечныеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.точечныеToolStripMenuItem.Text = "Spot Filters";
@@ -101,37 +108,51 @@
             // инверсияToolStripMenuItem
             // 
             this.инверсияToolStripMenuItem.Name = "инверсияToolStripMenuItem";
-            this.инверсияToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.инверсияToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.инверсияToolStripMenuItem.Text = "Inversion";
             this.инверсияToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Inversion_ToolStripMenuItem_Click);
             // 
             // grayScaleToolStripMenuItem
             // 
             this.grayScaleToolStripMenuItem.Name = "grayScaleToolStripMenuItem";
-            this.grayScaleToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.grayScaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.grayScaleToolStripMenuItem.Text = "GrayScale";
             this.grayScaleToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_GrayScale_ToolStripMenuItem_Click);
             // 
             // sepiaToolStripMenuItem
             // 
             this.sepiaToolStripMenuItem.Name = "sepiaToolStripMenuItem";
-            this.sepiaToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.sepiaToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.sepiaToolStripMenuItem.Text = "Sepia";
             this.sepiaToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Sepia_ToolStripMenuItem_Click);
             // 
             // brightnessToolStripMenuItem
             // 
             this.brightnessToolStripMenuItem.Name = "brightnessToolStripMenuItem";
-            this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.brightnessToolStripMenuItem.Text = "Brightness";
             this.brightnessToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Brightness_ToolStripMenuItem_Click);
             // 
             // shiftToolStripMenuItem
             // 
             this.shiftToolStripMenuItem.Name = "shiftToolStripMenuItem";
-            this.shiftToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.shiftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.shiftToolStripMenuItem.Text = "Shift";
             this.shiftToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Shift_ToolStripMenuItem_Click);
+            // 
+            // grayWorldToolStripMenuItem
+            // 
+            this.grayWorldToolStripMenuItem.Name = "grayWorldToolStripMenuItem";
+            this.grayWorldToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.grayWorldToolStripMenuItem.Text = "GrayWorld";
+            this.grayWorldToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_GrayWorld_ToolStripMenuItem_Click);
+            // 
+            // autolevelsToolStripMenuItem
+            // 
+            this.autolevelsToolStripMenuItem.Name = "autolevelsToolStripMenuItem";
+            this.autolevelsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autolevelsToolStripMenuItem.Text = "Autolevels";
+            this.autolevelsToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Autolevels_ToolStripMenuItem_Click);
             // 
             // матричныеToolStripMenuItem
             // 
@@ -145,15 +166,31 @@
             // blurToolStripMenuItem
             // 
             this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
-            this.blurToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.blurToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.blurToolStripMenuItem.Text = "Blur";
             this.blurToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Blur_ToolStripMenuItem_Click);
             // 
+            // motionBlurToolStripMenuItem
+            // 
+            this.motionBlurToolStripMenuItem.Name = "motionBlurToolStripMenuItem";
+            this.motionBlurToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.motionBlurToolStripMenuItem.Text = "Motion Blur";
+            this.motionBlurToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_MotionBlur_ToolStripMenuItem_Click);
+            // 
             // advancedFiltersToolStripMenuItem
             // 
+            this.advancedFiltersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.embossingToolStripMenuItem});
             this.advancedFiltersToolStripMenuItem.Name = "advancedFiltersToolStripMenuItem";
             this.advancedFiltersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.advancedFiltersToolStripMenuItem.Text = "Advanced Filters";
+            // 
+            // embossingToolStripMenuItem
+            // 
+            this.embossingToolStripMenuItem.Name = "embossingToolStripMenuItem";
+            this.embossingToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.embossingToolStripMenuItem.Text = "Embossing";
+            this.embossingToolStripMenuItem.Click += new System.EventHandler(this.AdvancedFilters_Embossing_ToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
@@ -195,12 +232,12 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Cancel_Click);
             // 
-            // motionBlurToolStripMenuItem
+            // perfectReflectorToolStripMenuItem
             // 
-            this.motionBlurToolStripMenuItem.Name = "motionBlurToolStripMenuItem";
-            this.motionBlurToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.motionBlurToolStripMenuItem.Text = "Motion Blur";
-            this.motionBlurToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_MotionBlur_ToolStripMenuItem_Click);
+            this.perfectReflectorToolStripMenuItem.Name = "perfectReflectorToolStripMenuItem";
+            this.perfectReflectorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.perfectReflectorToolStripMenuItem.Text = "PerfectReflector";
+            this.perfectReflectorToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_PerfectReflector_ToolStripMenuItem_Click);
             // 
             // UserInterface
             // 
@@ -244,6 +281,10 @@
         private System.Windows.Forms.ToolStripMenuItem advancedFiltersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem blurToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem motionBlurToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem embossingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem grayWorldToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem autolevelsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem perfectReflectorToolStripMenuItem;
     }
 }
 

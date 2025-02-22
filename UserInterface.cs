@@ -55,6 +55,21 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void SpotFilters_GrayWorld_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            SpotFilters.GrayWorldFilter filter = new SpotFilters.GrayWorldFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void SpotFilters_Autolevels_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            SpotFilters.AutolevelsFilter filter = new SpotFilters.AutolevelsFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            SpotFilters.PerfectReflectorFilter filter = new SpotFilters.PerfectReflectorFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
         private void MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {
             MatrixFilters.BlurFilter filter = new MatrixFilters.BlurFilter();
             backgroundWorker1.RunWorkerAsync(filter);
@@ -62,6 +77,11 @@ namespace PhotoEditor {
 
         private void MatrixFilters_MotionBlur_ToolStripMenuItem_Click(object sender, EventArgs e) {
             MatrixFilters.MotionBlurFilter filter = new MatrixFilters.MotionBlurFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            AdvancedFilters.EmbossingFilter filter = new AdvancedFilters.EmbossingFilter();
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
