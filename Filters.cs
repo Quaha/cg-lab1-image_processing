@@ -8,6 +8,69 @@ using System.ComponentModel;
 using PhotoEditor.SpotFilters;
 
 namespace PhotoEditor {
+
+    public struct RawColor {
+        public float A;
+        public float R;
+        public float G;
+        public float B;
+
+        public RawColor(float A, float R, float G, float B) {
+            this.A = A;
+            this.R = R;
+            this.G = G;
+            this.B = B;
+        }
+
+        public Color ToColor() {
+            return Color.FromArgb(
+                Filter.clamp((int)A),
+                Filter.clamp((int)R),
+                Filter.clamp((int)G),
+                Filter.clamp((int)B)
+            );
+        }
+
+        public static RawColor FromColor(Color c) {
+            return new RawColor(c.A, c.R , c.G , c.B);
+        }
+
+        public static RawColor operator +(RawColor c1, RawColor c2) {
+            return new RawColor(c1.A + c2.A,c1.R + c2.R, c1.G + c2.G, c1.B + c2.B);
+        }
+
+        public static RawColor operator *(RawColor c, float k) {
+            return new RawColor(c.A, c.R * k, c.G * k, c.B * k);
+        }
+
+        public static RawColor[,] BitmapToArray(Bitmap bitmap) {
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+
+            RawColor[,] array = new RawColor[width, height];
+
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    array[x, y] = FromColor(bitmap.GetPixel(x, y));
+                }
+            }
+            return array;
+        }
+
+        public static Bitmap ArrayToBitmap(RawColor[,] array) {
+            int width = array.GetLength(0);
+            int height = array.GetLength(1);
+            Bitmap bitmap = new Bitmap(width, height);
+
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    bitmap.SetPixel(x, y, array[x, y].ToColor());
+                }
+            }
+            return bitmap;
+        }
+    }
+
     abstract class Filter {
         public static int clamp(int value, int min = 0, int max = 255) { // [min, max]
             if (value < min) {
@@ -23,6 +86,10 @@ namespace PhotoEditor {
             int intensity = (299 * color.R + 587 * color.G + 114 * color.B + 500) / 1000;
             return clamp(intensity, 0, 255);
         }
+        public static int getIntensity(RawColor color) {
+            int intensity = (299 * (int)color.R + 587 * (int)color.G + 114 * (int)color.B + 500) / 1000;
+            return intensity;
+        }
 
         public static Color getCorrectColor(int alpha, int R, int G, int B) {
             return Color.FromArgb(clamp(alpha),
@@ -31,19 +98,29 @@ namespace PhotoEditor {
                                   clamp(B));
         }
 
-        protected abstract Color calculateNewPixelColor(Bitmap source_image, int x, int y);
+        protected abstract RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y);
 
-        public virtual Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-            Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+        public virtual RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
 
-            for (int i = 0; i < source_image.Width; i++) {
-                worker.ReportProgress(100 * i / source_image.Width);
-                for (int j = 0; j < source_image.Height; j++) {
-                    result_image.SetPixel(i, j, calculateNewPixelColor(source_image, i, j));
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor[,] result_image = new RawColor[width, height];
+
+            for (int i = 0; i < width; i++) {
+                worker.ReportProgress(100 * i / width);
+                for (int j = 0; j < height; j++) {
+                    result_image[i, j] = calculateNewPixelColor(source_image, i, j);
                 }
             }
 
             return result_image;
+        }
+
+        public virtual Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
+            RawColor[,] temp = RawColor.BitmapToArray(source_image);
+            temp = processImageRaw(temp, worker);
+            return RawColor.ArrayToBitmap(temp);
         }
     }
 
@@ -60,10 +137,10 @@ namespace PhotoEditor {
 
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
                     
-                Color result_color = getCorrectColor(255,
+                RawColor result_color = new RawColor(255,
                                                      255 - source_color.R,
                                                      255 - source_color.G,
                                                      255 - source_color.B);
@@ -79,12 +156,12 @@ namespace PhotoEditor {
 
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
 
                 int intensity = getIntensity(source_color);
 
-                Color result_color = getCorrectColor(255,
+                RawColor result_color = new RawColor(255,
                                                      intensity,
                                                      intensity,
                                                      intensity);
@@ -102,12 +179,12 @@ namespace PhotoEditor {
                 this.sepia_strength = sepia_strength;
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
 
                 int intensity = getIntensity(source_color);
 
-                Color result_color = getCorrectColor(255,
+                RawColor result_color = new RawColor(255,
                                                      intensity + 2 * sepia_strength,
                                                      intensity + sepia_strength / 2,
                                                      intensity - sepia_strength);
@@ -125,9 +202,9 @@ namespace PhotoEditor {
                 this.brightness_delta = brightness_delta;
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
-                Color result_color = getCorrectColor(255,
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
+                RawColor result_color = new RawColor(255,
                                                      source_color.R + brightness_delta,
                                                      source_color.G + brightness_delta,
                                                      source_color.B + brightness_delta);
@@ -146,11 +223,11 @@ namespace PhotoEditor {
                 this.dy = dy;
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                if (0 <= x + dx && x + dx < source_image.Width && 0 <= y + dy && y + dy < source_image.Height) {
-                    return source_image.GetPixel(x + dx, y + dy);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                if (0 <= x + dx && x + dx < source_image.GetLength(0) && 0 <= y + dy && y + dy < source_image.GetLength(1)) {
+                    return source_image[x + dx, y + dy];
                 }
-                return Color.Black;
+                return new RawColor(0, 0, 0, 0);
             }
         }
 
@@ -165,45 +242,49 @@ namespace PhotoEditor {
 
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
 
-                Color result_color = getCorrectColor(255,
-                                                     (int)(source_color.R * average / average_R),
-                                                     (int)(source_color.G * average / average_G),
-                                                     (int)(source_color.B * average / average_B));
+                RawColor result_color = new RawColor(255,
+                                                    (source_color.R * average / average_R),
+                                                    (source_color.G * average / average_G),
+                                                    (source_color.B * average / average_B));
                 return result_color;
             }
 
-            public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-                Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+            public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
 
-                int sum_R = 0;
-                int sum_G = 0;
-                int sum_B = 0;
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        Color current_pixel = source_image.GetPixel(i, j);
+                float sum_R = 0;
+                float sum_G = 0;
+                float sum_B = 0;
+
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        RawColor current_pixel = source_image[i, j];
                         sum_R += current_pixel.R;
                         sum_G += current_pixel.G;
                         sum_B += current_pixel.B;
                     }
                 }
 
-                int total = source_image.Width * source_image.Height;
+                int total = width * height;
 
-                average_R = (float)sum_R / (float)total;
-                average_G = (float)sum_G / (float)total;
-                average_B = (float)sum_B / (float)total;
+                average_R = sum_R / (float)total;
+                average_G = sum_G / (float)total;
+                average_B = sum_B / (float)total;
 
                 average = (average_R + average_G + average_B) / (float)3;
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 + 50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        result_image.SetPixel(i, j, calculateNewPixelColor(source_image, i, j));
+                RawColor[,] result_image = new RawColor[width, height];
+
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 + 50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        result_image[i, j] = calculateNewPixelColor(source_image, i, j);
                     }
                 }
 
@@ -222,45 +303,48 @@ namespace PhotoEditor {
 
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
 
                 int new_R = (int)((float)255 * (source_color.R - min_R) / (max_R - min_R));
                 int new_G = (int)((float)255 * (source_color.G - min_G) / (max_G - min_G));
                 int new_B = (int)((float)255 * (source_color.B - min_B) / (max_B - min_B));
                  
 
-                Color result_color = getCorrectColor(255,
+                RawColor result_color = new RawColor(255,
                                                      new_R,
                                                      new_G,
                                                      new_B);
                 return result_color;
             }
 
-            public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-                Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+            public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                RawColor[,] result_image = new RawColor[width, height];
 
                 min_R = 255; min_G = 255; min_B = 255;
                 max_R = 0; max_G = 0; max_B = 0;
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        Color current_pixel = source_image.GetPixel(i, j);
-                        min_R = Math.Min(current_pixel.R, min_R);
-                        min_G = Math.Min(current_pixel.G, min_G);
-                        min_B = Math.Min(current_pixel.B, min_B);
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        RawColor current_pixel = source_image[i, j];
+                        min_R = Math.Min((int)current_pixel.R, min_R);
+                        min_G = Math.Min((int)current_pixel.G, min_G);
+                        min_B = Math.Min((int)current_pixel.B, min_B);
 
-                        max_R = Math.Max(current_pixel.R, max_R);
-                        max_G = Math.Max(current_pixel.G, max_G);
-                        max_B = Math.Max(current_pixel.B, max_B);
+                        max_R = Math.Max((int)current_pixel.R, max_R);
+                        max_G = Math.Max((int)current_pixel.G, max_G);
+                        max_B = Math.Max((int)current_pixel.B, max_B);
                     }
                 }
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 + 50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        result_image.SetPixel(i, j, calculateNewPixelColor(source_image, i, j));
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 + 50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        result_image[i, j] = calculateNewPixelColor(source_image, i, j);
                     }
                 }
 
@@ -278,40 +362,43 @@ namespace PhotoEditor {
 
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-                Color source_color = source_image.GetPixel(x, y);
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
 
                 int new_R = (int)((float)255 * source_color.R / max_R);
                 int new_G = (int)((float)255 * source_color.G / max_G);
                 int new_B = (int)((float)255 * source_color.B / max_B);
 
 
-                Color result_color = getCorrectColor(255,
+                RawColor result_color = new RawColor(255,
                                                      new_R,
                                                      new_G,
                                                      new_B);
                 return result_color;
             }
 
-            public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-                Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+            public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                RawColor[,] result_image = new RawColor[width, height];
 
                 max_R = 0; max_G = 0; max_B = 0;
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        Color current_pixel = source_image.GetPixel(i, j);
-                        max_R = Math.Max(current_pixel.R, max_R);
-                        max_G = Math.Max(current_pixel.G, max_G);
-                        max_B = Math.Max(current_pixel.B, max_B);
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        RawColor current_pixel = source_image[i, j];
+                        max_R = Math.Max((int)current_pixel.R, max_R);
+                        max_G = Math.Max((int)current_pixel.G, max_G);
+                        max_B = Math.Max((int)current_pixel.B, max_B);
                     }
                 }
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(50 + 50 * i / result_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
-                        result_image.SetPixel(i, j, calculateNewPixelColor(source_image, i, j));
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(50 + 50 * i / width);
+                    for (int j = 0; j < height; j++) {
+                        result_image[i, j] = calculateNewPixelColor(source_image, i, j);
                     }
                 }
 
@@ -325,18 +412,21 @@ namespace PhotoEditor {
         protected int kernel_width, kernel_height;
         protected int base_dx, base_dy; // Смещение левого верхнего угла ядра относительно текущего пикселя
 
-        protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
             float result_R = 0;
             float result_G = 0;
             float result_B = 0;
 
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
             for (int dx = 0; dx < kernel_width; dx++) {
                 for (int dy = 0; dy < kernel_height; dy++) {
 
-                    int nx = clamp(x + base_dx + dx, 0, source_image.Width - 1);
-                    int ny = clamp(y + base_dy + dy, 0, source_image.Height - 1);
+                    int nx = clamp(x + base_dx + dx, 0, width - 1);
+                    int ny = clamp(y + base_dy + dy, 0, height - 1);
 
-                    Color neighbor_color = source_image.GetPixel(nx, ny);
+                    RawColor neighbor_color = source_image[nx, ny];
                     float kernel_coefficient = kernel[dx, dy];
                     result_R += kernel_coefficient * neighbor_color.R;
                     result_G += kernel_coefficient * neighbor_color.G;
@@ -344,10 +434,10 @@ namespace PhotoEditor {
                 }
             }
 
-            return getCorrectColor(255,
-                                   (int)result_R,
-                                   (int)result_G,
-                                   (int)result_B);
+            return new RawColor(255,
+                                result_R,
+                                result_G,
+                                result_B);
         }
     }
 
@@ -400,23 +490,23 @@ namespace PhotoEditor {
 
             class MidianFilterFunctions {
 
-                public static int[] lower_buffer;
-                public static int[] upper_buffer;
+                public static float[] lower_buffer;
+                public static float[] upper_buffer;
 
                 public static int s1, s2;
                 public static int equal_cnt;
 
-                public static int findOrderStatistic(int[] array, int k) {
+                public static float findOrderStatistic(float[] array, int k) {
 
                     int l = 0;
                     int r = array.Length;
 
-                    lower_buffer = new int[r];
-                    upper_buffer = new int[r];
+                    lower_buffer = new float[r];
+                    upper_buffer = new float[r];
 
                     while (r - l > 1) {
 
-                        int x = array[l];
+                        float x = array[l];
                         s1 = s2 = 0;
                         equal_cnt = 0;
 
@@ -470,20 +560,23 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
 
-                int[] colors_R = new int[kernel_width * kernel_height];
-                int[] colors_G = new int[kernel_width * kernel_height];
-                int[] colors_B = new int[kernel_width * kernel_height];
+                float[] colors_R = new float[kernel_width * kernel_height];
+                float[] colors_G = new float[kernel_width * kernel_height];
+                float[] colors_B = new float[kernel_width * kernel_height];
+
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
 
                 int p = 0;
                 for (int dx = 0; dx < kernel_width; dx++) {
                     for (int dy = 0; dy < kernel_height; dy++) {
 
-                        int nx = clamp(x + base_dx + dx, 0, source_image.Width - 1);
-                        int ny = clamp(y + base_dy + dy, 0, source_image.Height - 1);
+                        int nx = clamp(x + base_dx + dx, 0, width - 1);
+                        int ny = clamp(y + base_dy + dy, 0, height - 1);
 
-                        Color neighbor_color = source_image.GetPixel(nx, ny);
+                        RawColor neighbor_color = source_image[nx, ny];
 
                         colors_R[p] = neighbor_color.R;
                         colors_G[p] = neighbor_color.G;
@@ -492,14 +585,14 @@ namespace PhotoEditor {
                         ++p;
                     }
                 }
-                int result_R = MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
-                int result_G = MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
-                int result_B = MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
+                float result_R = MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
+                float result_G = MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
+                float result_B = MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
 
-                return getCorrectColor(255,
-                                       result_R,
-                                       result_G,
-                                       result_B);
+                return new RawColor(255,
+                                    result_R,
+                                    result_G,
+                                    result_B);
             }
         }
 
@@ -538,18 +631,18 @@ namespace PhotoEditor {
     abstract class AdvancedFilter : Filter {
         protected Filter[] filters;
 
-        protected override Color calculateNewPixelColor(Bitmap source_image, int x, int y) {
-            Color source_color = source_image.GetPixel(x, y);
-            return Color.Black;
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            return new RawColor(0, 0, 0, 0);
         }
 
         public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-            Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
-            result_image = source_image;
+            RawColor[,] temp = RawColor.BitmapToArray(source_image);
 
             for (int i = 0; i < filters.Length; i++) {
-                result_image = filters[i].processImage(result_image, worker);
+                temp = filters[i].processImageRaw(temp, worker);
             }
+
+            Bitmap result_image = RawColor.ArrayToBitmap(temp);
 
             return result_image;
         }
