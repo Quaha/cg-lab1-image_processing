@@ -68,10 +68,6 @@ namespace PhotoEditor {
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e) {
-
-        }
-
         private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
             SpotFilters.InversionFilter filter = new SpotFilters.InversionFilter();
             backgroundWorker1.RunWorkerAsync(filter);
@@ -132,6 +128,15 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void MatrixFilters_Expansion_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.ExpansionFilter filter = new MatrixFilters.ExpansionFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void MatrixFilters_Narrowing_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.NarrowingFilter filter = new MatrixFilters.NarrowingFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
         private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
             AdvancedFilters.EmbossingFilter filter = new AdvancedFilters.EmbossingFilter();
             backgroundWorker1.RunWorkerAsync(filter);
@@ -151,6 +156,7 @@ namespace PhotoEditor {
             AdvancedFilters.ScharrFilter filter = new AdvancedFilters.ScharrFilter();
             backgroundWorker1.RunWorkerAsync(filter);
         }
+
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e) {
             Bitmap new_image = ((Filter)e.Argument).processImage(image, backgroundWorker1);
             if (backgroundWorker1.CancellationPending != true) {

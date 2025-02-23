@@ -111,6 +111,7 @@ namespace PhotoEditor {
             int intensity = (299 * color.R + 587 * color.G + 114 * color.B + 500) / 1000;
             return clamp(intensity, 0, 255);
         }
+
         public static int getIntensity(RawColor color) {
             int intensity = (299 * (int)color.R + 587 * (int)color.G + 114 * (int)color.B + 500) / 1000;
             return intensity;
@@ -650,8 +651,115 @@ namespace PhotoEditor {
                         kernel[i, j] /= norm;
                     }
                 }
+
+                base_dx = -radius;
+                base_dy = -radius;
             }
         }
+
+        class ExpansionFilter : MatrixFilter {
+
+            public static string name = "Expansion";
+
+            public ExpansionFilter() {
+
+                kernel_width = 3;
+                kernel_height = 3;
+
+                kernel = new float[,] {
+                    { 0, 1, 0 },
+                    { 1, 1, 1 },
+                    { 0, 1, 0 }
+                };
+
+                base_dx = -1;
+                base_dy = -1;
+            }
+
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                float result_R = 0;
+                float result_G = 0;
+                float result_B = 0;
+
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                for (int dx = 0; dx < kernel_width; dx++) {
+                    for (int dy = 0; dy < kernel_height; dy++) {
+
+                        int nx = clamp(x + base_dx + dx, 0, width - 1);
+                        int ny = clamp(y + base_dy + dy, 0, height - 1);
+
+                        RawColor neighbor_color = source_image[nx, ny];
+                        float kernel_coefficient = kernel[dx, dy];
+
+                        if (kernel_coefficient > 0.5f) {
+                            result_R = Math.Max(neighbor_color.R, result_R);
+                            result_G = Math.Max(neighbor_color.G, result_G);
+                            result_B = Math.Max(neighbor_color.B, result_B);
+                        }
+                    }
+                }
+
+                return new RawColor(255,
+                                    result_R,
+                                    result_G,
+                                    result_B);
+            }
+        }
+
+        class NarrowingFilter : MatrixFilter {
+
+            public static string name = "Narrowing";
+
+            public NarrowingFilter() {
+
+                kernel_width = 3;
+                kernel_height = 3;
+
+                kernel = new float[,] {
+                    { 0, 1, 0 },
+                    { 1, 1, 1 },
+                    { 0, 1, 0 }
+                };
+
+                base_dx = -1;
+                base_dy = -1;
+            }
+
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                float result_R = 255;
+                float result_G = 255;
+                float result_B = 255;
+
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                for (int dx = 0; dx < kernel_width; dx++) {
+                    for (int dy = 0; dy < kernel_height; dy++) {
+
+                        int nx = clamp(x + base_dx + dx, 0, width - 1);
+                        int ny = clamp(y + base_dy + dy, 0, height - 1);
+
+                        RawColor neighbor_color = source_image[nx, ny];
+                        float kernel_coefficient = kernel[dx, dy];
+
+                        if (kernel_coefficient > 0.5f) {
+                            result_R = Math.Min(neighbor_color.R, result_R);
+                            result_G = Math.Min(neighbor_color.G, result_G);
+                            result_B = Math.Min(neighbor_color.B, result_B);
+                        }
+                    }
+                }
+
+                return new RawColor(255,
+                                    result_R,
+                                    result_G,
+                                    result_B);
+            }
+
+        }
+
     }
 
     abstract class AdvancedFilter : Filter {
