@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.ComponentModel;
 using PhotoEditor.SpotFilters;
+using System.Windows.Forms.Design;
 
 namespace PhotoEditor {
 
@@ -60,6 +61,7 @@ namespace PhotoEditor {
         public static Bitmap ArrayToBitmap(RawColor[,] array) {
             int width = array.GetLength(0);
             int height = array.GetLength(1);
+
             Bitmap bitmap = new Bitmap(width, height);
 
             for (int x = 0; x < width; x++) {
@@ -69,10 +71,33 @@ namespace PhotoEditor {
             }
             return bitmap;
         }
+
+        public static void makeCorrect(RawColor[,] array) {
+            int width = array.GetLength(0);
+            int height = array.GetLength(1);
+
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    RawColor c = array[i, j];
+                    array[i, j] = new RawColor(Filter.clamp(c.A), Filter.clamp(c.R), Filter.clamp(c.G), Filter.clamp(c.B));
+                }
+            }
+        }
     }
 
     abstract class Filter {
+
         public static int clamp(int value, int min = 0, int max = 255) { // [min, max]
+            if (value < min) {
+                return min;
+            }
+            if (value > max) {
+                return max;
+            }
+            return value;
+        }
+
+        public static float clamp(float value, float min = 0, float max = 255) { // [min, max]
             if (value < min) {
                 return min;
             }
@@ -129,6 +154,7 @@ namespace PhotoEditor {
     }
 
     namespace SpotFilters {
+
         class InversionFilter : SpotFilter {
 
             public static string name = "Inversion"; 
@@ -296,8 +322,8 @@ namespace PhotoEditor {
 
             public static string name = "Autolevels";
 
-            protected int min_R, min_G, min_B;
-            protected int max_R, max_G, max_B;
+            protected float min_R, min_G, min_B;
+            protected float max_R, max_G, max_B;
 
             public AutolevelsFilter() {
 
@@ -306,9 +332,9 @@ namespace PhotoEditor {
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
 
-                int new_R = (int)((float)255 * (source_color.R - min_R) / (max_R - min_R));
-                int new_G = (int)((float)255 * (source_color.G - min_G) / (max_G - min_G));
-                int new_B = (int)((float)255 * (source_color.B - min_B) / (max_B - min_B));
+                float new_R = (255.0f * (source_color.R - min_R) / (max_R - min_R));
+                float new_G = (255.0f * (source_color.G - min_G) / (max_G - min_G));
+                float new_B = (255.0f * (source_color.B - min_B) / (max_B - min_B));
                  
 
                 RawColor result_color = new RawColor(255,
@@ -331,13 +357,13 @@ namespace PhotoEditor {
                     worker.ReportProgress(50 * i / width);
                     for (int j = 0; j < height; j++) {
                         RawColor current_pixel = source_image[i, j];
-                        min_R = Math.Min((int)current_pixel.R, min_R);
-                        min_G = Math.Min((int)current_pixel.G, min_G);
-                        min_B = Math.Min((int)current_pixel.B, min_B);
+                        min_R = Math.Min(current_pixel.R, min_R);
+                        min_G = Math.Min(current_pixel.G, min_G);
+                        min_B = Math.Min(current_pixel.B, min_B);
 
-                        max_R = Math.Max((int)current_pixel.R, max_R);
-                        max_G = Math.Max((int)current_pixel.G, max_G);
-                        max_B = Math.Max((int)current_pixel.B, max_B);
+                        max_R = Math.Max(current_pixel.R, max_R);
+                        max_G = Math.Max(current_pixel.G, max_G);
+                        max_B = Math.Max(current_pixel.B, max_B);
                     }
                 }
 
@@ -631,18 +657,45 @@ namespace PhotoEditor {
     abstract class AdvancedFilter : Filter {
         protected Filter[] filters;
 
+        protected class RangeCorrectionFilter : SpotFilter {
+
+            public static string name = "RangeCorrectionFilter";
+
+            public RangeCorrectionFilter() {
+
+            }
+
+            protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                RawColor source_color = source_image[x, y];
+
+                RawColor result_color = new RawColor(clamp(source_color.A),
+                                                     clamp(source_color.R),
+                                                     clamp(source_color.G),
+                                                     clamp(source_color.B));
+                return result_color;
+            }
+        }
+
         protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
             return new RawColor(0, 0, 0, 0);
         }
 
-        public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-            RawColor[,] temp = RawColor.BitmapToArray(source_image);
+        public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
 
-            for (int i = 0; i < filters.Length; i++) {
-                temp = filters[i].processImageRaw(temp, worker);
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor[,] result_image = new RawColor[width, height]; 
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    result_image[i, j] = source_image[i, j];
+                }
             }
 
-            Bitmap result_image = RawColor.ArrayToBitmap(temp);
+
+            for (int i = 0; i < filters.Length; i++) {
+                result_image = filters[i].processImageRaw(result_image, worker);
+            }
 
             return result_image;
         }
@@ -656,6 +709,7 @@ namespace PhotoEditor {
 
             protected class EmbossingCoreFilter1 : MatrixFilter {
                 public EmbossingCoreFilter1() {
+
                     kernel_width = 3;
                     kernel_height = 3;
 
@@ -678,8 +732,10 @@ namespace PhotoEditor {
             }
 
             public EmbossingFilter() {
+
                 filters = new Filter[] {
                     new EmbossingCoreFilter1(),
+                    new RangeCorrectionFilter(),
                     new BrightnessFilter(100),
                     new GrayScaleFilter(),
                 };
@@ -691,9 +747,12 @@ namespace PhotoEditor {
             public static string name = "Paper";
 
             public PaperFilter() {
+
                 filters = new Filter[] {
                     new EmbossingFilter(),
+                    new RangeCorrectionFilter(),
                     new AutolevelsFilter(),
+                    new RangeCorrectionFilter(),
                     new InversionFilter(),
                 };
             }
@@ -706,6 +765,7 @@ namespace PhotoEditor {
             protected class SobelCoreFilter1 : MatrixFilter {
 
                 public SobelCoreFilter1() {
+
                     kernel_width = 3;
                     kernel_height = 3;
 
@@ -723,6 +783,7 @@ namespace PhotoEditor {
             protected class SobelCoreFilter2 : MatrixFilter {
 
                 public SobelCoreFilter2() {
+
                     kernel_width = 3;
                     kernel_height = 3;
 
@@ -737,46 +798,46 @@ namespace PhotoEditor {
                 }
             }
 
-            public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
+            public SobelFilter() {
 
-                GrayScaleFilter filter = new GrayScaleFilter();
-                source_image = filter.processImage(source_image, worker);
+            }
 
-                Bitmap temp_image1 = new Bitmap(source_image.Width, source_image.Height);
+            public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
 
                 SobelCoreFilter1 filter1 = new SobelCoreFilter1();
-                temp_image1 = filter1.processImage(source_image, worker);
-
-                Bitmap temp_image2 = new Bitmap(source_image.Width, source_image.Height);
+                RawColor[,] temp_image1 = filter1.processImageRaw(source_image, worker);
 
                 SobelCoreFilter2 filter2 = new SobelCoreFilter2();
-                temp_image2 = filter2.processImage(source_image, worker);
+                RawColor[,] temp_image2 = filter2.processImageRaw(source_image, worker);
 
-                Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+                RawColor[,] result_image = new RawColor[width, height];
 
-                for (int i = 0; i < source_image.Width; i++) {
-                    worker.ReportProgress(100 * i / source_image.Width);
-                    for (int j = 0; j < source_image.Height; j++) {
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(100 * i / width);
+                    for (int j = 0; j < height; j++) {
 
-                        Color temp_color1 = temp_image1.GetPixel(i, j);
-                        Color temp_color2 = temp_image2.GetPixel(i, j);
+                        RawColor temp_color1 = temp_image1[i, j];
+                        RawColor temp_color2 = temp_image2[i, j];
 
-                        int temp_R1 = temp_color1.R;
-                        int temp_G1 = temp_color1.G;
-                        int temp_B1 = temp_color1.B;
+                        float temp_R1 = temp_color1.R;
+                        float temp_G1 = temp_color1.G;
+                        float temp_B1 = temp_color1.B;
 
-                        int temp_R2 = temp_color2.R;
-                        int temp_G2 = temp_color2.G;
-                        int temp_B2 = temp_color2.B;
+                        float temp_R2 = temp_color2.R;
+                        float temp_G2 = temp_color2.G;
+                        float temp_B2 = temp_color2.B;
 
-                        int new_R = (int)Math.Sqrt(temp_R1 * temp_R1 + temp_R2 * temp_R2);
-                        int new_G = (int)Math.Sqrt(temp_G1 * temp_G1 + temp_G2 * temp_G2);
-                        int new_B = (int)Math.Sqrt(temp_B1 * temp_B1 + temp_B2 * temp_B2);
+                        float new_R = (int)Math.Sqrt(temp_R1 * temp_R1 + temp_R2 * temp_R2);
+                        float new_G = (int)Math.Sqrt(temp_G1 * temp_G1 + temp_G2 * temp_G2);
+                        float new_B = (int)Math.Sqrt(temp_B1 * temp_B1 + temp_B2 * temp_B2);
 
-                        result_image.SetPixel(i, j, getCorrectColor(255,
-                                                                    new_R,
-                                                                    new_G,
-                                                                    new_B));
+                        result_image[i, j] = new RawColor(255,
+                                                          new_R,
+                                                          new_G,
+                                                          new_B);
                     }
                 }
 
@@ -787,6 +848,88 @@ namespace PhotoEditor {
         class ScharrFilter : AdvancedFilter {
 
             public static string name = "Scharr";
+
+            protected class SobelCoreFilter1 : MatrixFilter {
+
+                public SobelCoreFilter1() {
+
+                    kernel_width = 3;
+                    kernel_height = 3;
+
+                    base_dx = -1;
+                    base_dy = -1;
+
+                    kernel = new float[3, 3] {
+                        { -3, -10, -3 },
+                        {  0,   0,  0 },
+                        {  3,  10,  3 }
+                    };
+                }
+            }
+
+            protected class SobelCoreFilter2 : MatrixFilter {
+
+                public SobelCoreFilter2() {
+
+                    kernel_width = 3;
+                    kernel_height = 3;
+
+                    base_dx = -1;
+                    base_dy = -1;
+
+                    kernel = new float[3, 3] {
+                        {  -3, 0,  3 },
+                        { -10, 0, 10 },
+                        {  -3, 0,  3 }
+                    };
+                }
+            }
+
+            public ScharrFilter() {
+
+            }
+
+            public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                SobelCoreFilter1 filter1 = new SobelCoreFilter1();
+                RawColor[,] temp_image1 = filter1.processImageRaw(source_image, worker);
+
+                SobelCoreFilter2 filter2 = new SobelCoreFilter2();
+                RawColor[,] temp_image2 = filter2.processImageRaw(source_image, worker);
+
+                RawColor[,] result_image = new RawColor[width, height];
+
+                for (int i = 0; i < width; i++) {
+                    worker.ReportProgress(100 * i / width);
+                    for (int j = 0; j < height; j++) {
+
+                        RawColor temp_color1 = temp_image1[i, j];
+                        RawColor temp_color2 = temp_image2[i, j];
+
+                        float temp_R1 = temp_color1.R;
+                        float temp_G1 = temp_color1.G;
+                        float temp_B1 = temp_color1.B;
+
+                        float temp_R2 = temp_color2.R;
+                        float temp_G2 = temp_color2.G;
+                        float temp_B2 = temp_color2.B;
+
+                        float new_R = (int)Math.Sqrt(temp_R1 * temp_R1 + temp_R2 * temp_R2);
+                        float new_G = (int)Math.Sqrt(temp_G1 * temp_G1 + temp_G2 * temp_G2);
+                        float new_B = (int)Math.Sqrt(temp_B1 * temp_B1 + temp_B2 * temp_B2);
+
+                        result_image[i, j] = new RawColor(255,
+                                                          new_R,
+                                                          new_G,
+                                                          new_B);
+                    }
+                }
+
+                return result_image;
+            }
 
         }
     }
