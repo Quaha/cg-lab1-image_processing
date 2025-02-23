@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.ComponentModel;
 using PhotoEditor.SpotFilters;
-using PhotoEditor.AdvancedFilters.EmbossingCore;
 
 namespace PhotoEditor {
     abstract class Filter {
@@ -38,7 +37,7 @@ namespace PhotoEditor {
             Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
 
             for (int i = 0; i < source_image.Width; i++) {
-                worker.ReportProgress(100 * i / result_image.Width);
+                worker.ReportProgress(100 * i / source_image.Width);
                 for (int j = 0; j < source_image.Height; j++) {
                     result_image.SetPixel(i, j, calculateNewPixelColor(source_image, i, j));
                 }
@@ -395,7 +394,10 @@ namespace PhotoEditor {
             }
         }
 
-        namespace MedianCore {
+        class MedianFilter : MatrixFilter {
+
+            public static string name = "Median";
+
             class MidianFilterFunctions {
 
                 public static int[] lower_buffer;
@@ -458,11 +460,6 @@ namespace PhotoEditor {
                     return array[l];
                 }
             }
-        }
-
-        class MedianFilter : MatrixFilter {
-
-            public static string name = "Median";
 
             public MedianFilter(int radius = 1) {
 
@@ -495,14 +492,45 @@ namespace PhotoEditor {
                         ++p;
                     }
                 }
-                int result_R = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
-                int result_G = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
-                int result_B = MedianCore.MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
+                int result_R = MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
+                int result_G = MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
+                int result_B = MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
 
                 return getCorrectColor(255,
                                        result_R,
                                        result_G,
                                        result_B);
+            }
+        }
+
+        class GaussianFilter : MatrixFilter {
+
+            public static string name = "Gaussian";
+
+            public GaussianFilter(int radius = 3, float sigma = 2) {
+
+                kernel_width = radius * 2 + 1;
+                kernel_height = radius * 2 + 1;
+
+                kernel = new float[kernel_width, kernel_height];
+
+                float norm = 0;
+
+                for (int i = 0; i < kernel_width; i++) {
+                    for (int j = 0; j < kernel_height; j++) {
+                        int di = Math.Abs(i - kernel_width / 2);
+                        int dj = Math.Abs(i - kernel_width / 2);
+
+                        kernel[i, j] = (float)(Math.Exp(-(di * di + dj * dj) / (2 * sigma * sigma)));
+                        norm += kernel[i, j];
+                    }
+                }
+
+                for (int i = 0; i < kernel_width; i++) {
+                    for (int j = 0; j < kernel_height; j++) {
+                        kernel[i, j] /= norm;
+                    }
+                }
             }
         }
     }
@@ -520,7 +548,6 @@ namespace PhotoEditor {
             result_image = source_image;
 
             for (int i = 0; i < filters.Length; i++) {
-                worker.ReportProgress(100 * i / filters.Length);
                 result_image = filters[i].processImage(result_image, worker);
             }
 
@@ -530,9 +557,11 @@ namespace PhotoEditor {
 
     namespace AdvancedFilters {
 
-        namespace EmbossingCore {
+        class EmbossingFilter: AdvancedFilter {
 
-            class EmbossingCoreFilter1: MatrixFilter {
+            public static string name = "Embossing";
+
+            protected class EmbossingCoreFilter1 : MatrixFilter {
                 public EmbossingCoreFilter1() {
                     kernel_width = 3;
                     kernel_height = 3;
@@ -554,11 +583,6 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
             }
-        }
-
-        class EmbossingFilter: AdvancedFilter {
-
-            public static string name = "Embossing";
 
             public EmbossingFilter() {
                 filters = new Filter[] {
@@ -580,6 +604,97 @@ namespace PhotoEditor {
                     new InversionFilter(),
                 };
             }
+        }
+
+        class SobelFilter : AdvancedFilter {
+
+            public static string name = "Sobel";
+
+            protected class SobelCoreFilter1 : MatrixFilter {
+
+                public SobelCoreFilter1() {
+                    kernel_width = 3;
+                    kernel_height = 3;
+
+                    base_dx = -1;
+                    base_dy = -1;
+
+                    kernel = new float[3, 3] {
+                        {-1, -2, -1 },
+                        { 0,  0,  0 },
+                        { 1,  2,  1 }
+                    };
+                }
+            }
+
+            protected class SobelCoreFilter2 : MatrixFilter {
+
+                public SobelCoreFilter2() {
+                    kernel_width = 3;
+                    kernel_height = 3;
+
+                    base_dx = -1;
+                    base_dy = -1;
+
+                    kernel = new float[3, 3] {
+                        { -1, 0, 1 },
+                        { -2, 0, 2 },
+                        { -1, 0, 1 }
+                    };
+                }
+            }
+
+            public override Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
+
+                GrayScaleFilter filter = new GrayScaleFilter();
+                source_image = filter.processImage(source_image, worker);
+
+                Bitmap temp_image1 = new Bitmap(source_image.Width, source_image.Height);
+
+                SobelCoreFilter1 filter1 = new SobelCoreFilter1();
+                temp_image1 = filter1.processImage(source_image, worker);
+
+                Bitmap temp_image2 = new Bitmap(source_image.Width, source_image.Height);
+
+                SobelCoreFilter2 filter2 = new SobelCoreFilter2();
+                temp_image2 = filter2.processImage(source_image, worker);
+
+                Bitmap result_image = new Bitmap(source_image.Width, source_image.Height);
+
+                for (int i = 0; i < source_image.Width; i++) {
+                    worker.ReportProgress(100 * i / source_image.Width);
+                    for (int j = 0; j < source_image.Height; j++) {
+
+                        Color temp_color1 = temp_image1.GetPixel(i, j);
+                        Color temp_color2 = temp_image2.GetPixel(i, j);
+
+                        int temp_R1 = temp_color1.R;
+                        int temp_G1 = temp_color1.G;
+                        int temp_B1 = temp_color1.B;
+
+                        int temp_R2 = temp_color2.R;
+                        int temp_G2 = temp_color2.G;
+                        int temp_B2 = temp_color2.B;
+
+                        int new_R = (int)Math.Sqrt(temp_R1 * temp_R1 + temp_R2 * temp_R2);
+                        int new_G = (int)Math.Sqrt(temp_G1 * temp_G1 + temp_G2 * temp_G2);
+                        int new_B = (int)Math.Sqrt(temp_B1 * temp_B1 + temp_B2 * temp_B2);
+
+                        result_image.SetPixel(i, j, getCorrectColor(255,
+                                                                    new_R,
+                                                                    new_G,
+                                                                    new_B));
+                    }
+                }
+
+                return result_image;
+            }
+        }
+
+        class ScharrFilter : AdvancedFilter {
+
+            public static string name = "Scharr";
+
         }
     }
 }

@@ -127,6 +127,11 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            MatrixFilters.GaussianFilter filter = new MatrixFilters.GaussianFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
         private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
             AdvancedFilters.EmbossingFilter filter = new AdvancedFilters.EmbossingFilter();
             backgroundWorker1.RunWorkerAsync(filter);
@@ -137,6 +142,15 @@ namespace PhotoEditor {
             backgroundWorker1.RunWorkerAsync(filter);
         }
 
+        private void AdvancedFilters_Sobel_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            AdvancedFilters.SobelFilter filter = new AdvancedFilters.SobelFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void AdvancedFilters_Scharr_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            AdvancedFilters.ScharrFilter filter = new AdvancedFilters.ScharrFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e) {
             Bitmap new_image = ((Filter)e.Argument).processImage(image, backgroundWorker1);
             if (backgroundWorker1.CancellationPending != true) {
