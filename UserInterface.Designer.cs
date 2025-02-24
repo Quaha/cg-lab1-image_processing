@@ -49,15 +49,16 @@
             this.gaussianToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.expansionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.narrowingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sharpnessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.advancedFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.embossingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.paperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sobelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scharrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.button1 = new System.Windows.Forms.Button();
+            this.progress_updater = new System.ComponentModel.BackgroundWorker();
+            this.imageProcessingProgressBar = new System.Windows.Forms.ProgressBar();
+            this.cancelButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -118,7 +119,7 @@
             this.autolevelsToolStripMenuItem,
             this.perfectReflectorToolStripMenuItem});
             this.точечныеToolStripMenuItem.Name = "точечныеToolStripMenuItem";
-            this.точечныеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.точечныеToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.точечныеToolStripMenuItem.Text = "Spot Filters";
             // 
             // инверсияToolStripMenuItem
@@ -185,52 +186,60 @@
             this.medianToolStripMenuItem,
             this.gaussianToolStripMenuItem,
             this.expansionToolStripMenuItem,
-            this.narrowingToolStripMenuItem});
+            this.narrowingToolStripMenuItem,
+            this.sharpnessToolStripMenuItem});
             this.матричныеToolStripMenuItem.Name = "матричныеToolStripMenuItem";
-            this.матричныеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.матричныеToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.матричныеToolStripMenuItem.Text = "Matrix Filters";
             // 
             // blurToolStripMenuItem
             // 
             this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
-            this.blurToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.blurToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.blurToolStripMenuItem.Text = "Blur";
             this.blurToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Blur_ToolStripMenuItem_Click);
             // 
             // motionBlurToolStripMenuItem
             // 
             this.motionBlurToolStripMenuItem.Name = "motionBlurToolStripMenuItem";
-            this.motionBlurToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.motionBlurToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.motionBlurToolStripMenuItem.Text = "MotionBlur";
             this.motionBlurToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_MotionBlur_ToolStripMenuItem_Click);
             // 
             // medianToolStripMenuItem
             // 
             this.medianToolStripMenuItem.Name = "medianToolStripMenuItem";
-            this.medianToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.medianToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.medianToolStripMenuItem.Text = "Median";
             this.medianToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Median_ToolStripMenuItem_Click);
             // 
             // gaussianToolStripMenuItem
             // 
             this.gaussianToolStripMenuItem.Name = "gaussianToolStripMenuItem";
-            this.gaussianToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gaussianToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.gaussianToolStripMenuItem.Text = "Gaussian";
             this.gaussianToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Gaussian_ToolStripMenuItem_Click);
             // 
             // expansionToolStripMenuItem
             // 
             this.expansionToolStripMenuItem.Name = "expansionToolStripMenuItem";
-            this.expansionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.expansionToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.expansionToolStripMenuItem.Text = "Expansion";
             this.expansionToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Expansion_ToolStripMenuItem_Click);
             // 
             // narrowingToolStripMenuItem
             // 
             this.narrowingToolStripMenuItem.Name = "narrowingToolStripMenuItem";
-            this.narrowingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.narrowingToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.narrowingToolStripMenuItem.Text = "Narrowing";
             this.narrowingToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Narrowing_ToolStripMenuItem_Click);
+            // 
+            // sharpnessToolStripMenuItem
+            // 
+            this.sharpnessToolStripMenuItem.Name = "sharpnessToolStripMenuItem";
+            this.sharpnessToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.sharpnessToolStripMenuItem.Text = "Sharpness";
+            this.sharpnessToolStripMenuItem.Click += new System.EventHandler(this.MatrixFilters_Sharpness_ToolStripMenuItem_Click);
             // 
             // advancedFiltersToolStripMenuItem
             // 
@@ -240,7 +249,7 @@
             this.sobelToolStripMenuItem,
             this.scharrToolStripMenuItem});
             this.advancedFiltersToolStripMenuItem.Name = "advancedFiltersToolStripMenuItem";
-            this.advancedFiltersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.advancedFiltersToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.advancedFiltersToolStripMenuItem.Text = "Advanced Filters";
             // 
             // embossingToolStripMenuItem
@@ -285,31 +294,31 @@
             // 
             // backgroundWorker1
             // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.WorkerSupportsCancellation = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            this.progress_updater.WorkerReportsProgress = true;
+            this.progress_updater.WorkerSupportsCancellation = true;
+            this.progress_updater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.progressUpdater_DoWork);
+            this.progress_updater.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.progressUpdater_ProgressChanged);
+            this.progress_updater.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.progressUpdater_RunWorkerCompleted);
             // 
-            // progressBar1
+            // imageProcessingProgressBar
             // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.imageProcessingProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(0, 648);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(1077, 33);
-            this.progressBar1.TabIndex = 2;
+            this.imageProcessingProgressBar.Location = new System.Drawing.Point(0, 648);
+            this.imageProcessingProgressBar.Name = "imageProcessingProgressBar";
+            this.imageProcessingProgressBar.Size = new System.Drawing.Size(1077, 33);
+            this.imageProcessingProgressBar.TabIndex = 2;
             // 
-            // button1
+            // cancelButton
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(1083, 648);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(181, 33);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Cancel";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Cancel_Click);
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelButton.Location = new System.Drawing.Point(1083, 648);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(181, 33);
+            this.cancelButton.TabIndex = 3;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.Cancel_Click);
             // 
             // UserInterface
             // 
@@ -317,8 +326,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.cancelButton);
+            this.Controls.Add(this.imageProcessingProgressBar);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -342,9 +351,9 @@
         private System.Windows.Forms.ToolStripMenuItem инверсияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem матричныеToolStripMenuItem;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Button button1;
+        private System.ComponentModel.BackgroundWorker progress_updater;
+        private System.Windows.Forms.ProgressBar imageProcessingProgressBar;
+        private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.ToolStripMenuItem grayScaleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sepiaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem brightnessToolStripMenuItem;
@@ -364,6 +373,7 @@
         private System.Windows.Forms.ToolStripMenuItem scharrToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem expansionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem narrowingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sharpnessToolStripMenuItem;
     }
 }
 

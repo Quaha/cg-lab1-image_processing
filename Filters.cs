@@ -11,10 +11,7 @@ using System.Windows.Forms.Design;
 namespace PhotoEditor {
 
     public struct RawColor {
-        public float A;
-        public float R;
-        public float G;
-        public float B;
+        public float A, R, G, B;
 
         public RawColor(float A, float R, float G, float B) {
             this.A = A;
@@ -34,14 +31,6 @@ namespace PhotoEditor {
 
         public static RawColor FromColor(Color c) {
             return new RawColor(c.A, c.R , c.G , c.B);
-        }
-
-        public static RawColor operator +(RawColor c1, RawColor c2) {
-            return new RawColor(c1.A + c2.A,c1.R + c2.R, c1.G + c2.G, c1.B + c2.B);
-        }
-
-        public static RawColor operator *(RawColor c, float k) {
-            return new RawColor(c.A, c.R * k, c.G * k, c.B * k);
         }
 
         public static RawColor[,] BitmapToArray(Bitmap bitmap) {
@@ -79,7 +68,10 @@ namespace PhotoEditor {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
                     RawColor c = array[i, j];
-                    array[i, j] = new RawColor(Filter.clamp(c.A), Filter.clamp(c.R), Filter.clamp(c.G), Filter.clamp(c.B));
+                    array[i, j] = new RawColor(Filter.clamp(c.A),
+                                               Filter.clamp(c.R),
+                                               Filter.clamp(c.G),
+                                               Filter.clamp(c.B));
                 }
             }
         }
@@ -112,22 +104,14 @@ namespace PhotoEditor {
             return clamp(intensity, 0, 255);
         }
 
-        public static int getIntensity(RawColor color) {
-            int intensity = (299 * (int)color.R + 587 * (int)color.G + 114 * (int)color.B + 500) / 1000;
+        public static float getIntensity(RawColor color) {
+            float intensity = 0.299f * color.R + 0.587f * color.G + 0.114f * color.B;
             return intensity;
-        }
-
-        public static Color getCorrectColor(int alpha, int R, int G, int B) {
-            return Color.FromArgb(clamp(alpha),
-                                  clamp(R),
-                                  clamp(G),
-                                  clamp(B));
         }
 
         protected abstract RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y);
 
         public virtual RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
-
             int width = source_image.GetLength(0);
             int height = source_image.GetLength(1);
 
@@ -144,9 +128,9 @@ namespace PhotoEditor {
         }
 
         public virtual Bitmap processImage(Bitmap source_image, BackgroundWorker worker) {
-            RawColor[,] temp = RawColor.BitmapToArray(source_image);
-            temp = processImageRaw(temp, worker);
-            return RawColor.ArrayToBitmap(temp);
+            RawColor[,] temp_image = RawColor.BitmapToArray(source_image);
+            temp_image = processImageRaw(temp_image, worker);
+            return RawColor.ArrayToBitmap(temp_image);
         }
     }
 
@@ -166,8 +150,8 @@ namespace PhotoEditor {
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
-                    
-                RawColor result_color = new RawColor(255,
+
+                RawColor result_color = new RawColor(source_color.A,
                                                      255 - source_color.R,
                                                      255 - source_color.G,
                                                      255 - source_color.B);
@@ -186,9 +170,9 @@ namespace PhotoEditor {
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
 
-                int intensity = getIntensity(source_color);
+                float intensity = getIntensity(source_color);
 
-                RawColor result_color = new RawColor(255,
+                RawColor result_color = new RawColor(source_color.A,
                                                      intensity,
                                                      intensity,
                                                      intensity);
@@ -209,9 +193,9 @@ namespace PhotoEditor {
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
 
-                int intensity = getIntensity(source_color);
+                float intensity = getIntensity(source_color);
 
-                RawColor result_color = new RawColor(255,
+                RawColor result_color = new RawColor(source_color.A,
                                                      intensity + 2 * sepia_strength,
                                                      intensity + sepia_strength / 2,
                                                      intensity - sepia_strength);
@@ -231,7 +215,8 @@ namespace PhotoEditor {
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
-                RawColor result_color = new RawColor(255,
+
+                RawColor result_color = new RawColor(source_color.A,
                                                      source_color.R + brightness_delta,
                                                      source_color.G + brightness_delta,
                                                      source_color.B + brightness_delta);
@@ -251,10 +236,19 @@ namespace PhotoEditor {
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
-                if (0 <= x + dx && x + dx < source_image.GetLength(0) && 0 <= y + dy && y + dy < source_image.GetLength(1)) {
-                    return source_image[x + dx, y + dy];
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                RawColor result_color;
+
+                if (0 <= x + dx && x + dx < width && 0 <= y + dy && y + dy < height) {
+                    result_color = source_image[x + dx, y + dy];
                 }
-                return new RawColor(0, 0, 0, 0);
+                else {
+                    result_color = new RawColor(0, 0, 0, 0);
+                }
+
+                return result_color;
             }
         }
 
@@ -272,7 +266,7 @@ namespace PhotoEditor {
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
 
-                RawColor result_color = new RawColor(255,
+                RawColor result_color = new RawColor(source_color.A,
                                                     (source_color.R * average / average_R),
                                                     (source_color.G * average / average_G),
                                                     (source_color.B * average / average_B));
@@ -280,7 +274,6 @@ namespace PhotoEditor {
             }
 
             public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
-
                 int width = source_image.GetLength(0);
                 int height = source_image.GetLength(1);
 
@@ -291,20 +284,21 @@ namespace PhotoEditor {
                 for (int i = 0; i < width; i++) {
                     worker.ReportProgress(50 * i / width);
                     for (int j = 0; j < height; j++) {
-                        RawColor current_pixel = source_image[i, j];
-                        sum_R += current_pixel.R;
-                        sum_G += current_pixel.G;
-                        sum_B += current_pixel.B;
+                        RawColor current_color = source_image[i, j];
+
+                        sum_R += current_color.R;
+                        sum_G += current_color.G;
+                        sum_B += current_color.B;
                     }
                 }
 
                 int total = width * height;
 
-                average_R = sum_R / (float)total;
-                average_G = sum_G / (float)total;
-                average_B = sum_B / (float)total;
+                average_R = sum_R / total;
+                average_G = sum_G / total;
+                average_B = sum_B / total;
 
-                average = (average_R + average_G + average_B) / (float)3;
+                average = (average_R + average_G + average_B) / 3;
 
                 RawColor[,] result_image = new RawColor[width, height];
 
@@ -338,7 +332,7 @@ namespace PhotoEditor {
                 float new_B = (255.0f * (source_color.B - min_B) / (max_B - min_B));
                  
 
-                RawColor result_color = new RawColor(255,
+                RawColor result_color = new RawColor(source_color.A,
                                                      new_R,
                                                      new_G,
                                                      new_B);
@@ -357,14 +351,15 @@ namespace PhotoEditor {
                 for (int i = 0; i < width; i++) {
                     worker.ReportProgress(50 * i / width);
                     for (int j = 0; j < height; j++) {
-                        RawColor current_pixel = source_image[i, j];
-                        min_R = Math.Min(current_pixel.R, min_R);
-                        min_G = Math.Min(current_pixel.G, min_G);
-                        min_B = Math.Min(current_pixel.B, min_B);
+                        RawColor current_color = source_image[i, j];
 
-                        max_R = Math.Max(current_pixel.R, max_R);
-                        max_G = Math.Max(current_pixel.G, max_G);
-                        max_B = Math.Max(current_pixel.B, max_B);
+                        min_R = Math.Min(current_color.R, min_R);
+                        min_G = Math.Min(current_color.G, min_G);
+                        min_B = Math.Min(current_color.B, min_B);
+
+                        max_R = Math.Max(current_color.R, max_R);
+                        max_G = Math.Max(current_color.G, max_G);
+                        max_B = Math.Max(current_color.B, max_B);
                     }
                 }
 
@@ -392,12 +387,12 @@ namespace PhotoEditor {
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
 
-                int new_R = (int)((float)255 * source_color.R / max_R);
-                int new_G = (int)((float)255 * source_color.G / max_G);
-                int new_B = (int)((float)255 * source_color.B / max_B);
+                int new_R = (int)(255 * source_color.R / max_R);
+                int new_G = (int)(255 * source_color.G / max_G);
+                int new_B = (int)(255 * source_color.B / max_B);
 
 
-                RawColor result_color = new RawColor(255,
+                RawColor result_color = new RawColor(source_color.A,
                                                      new_R,
                                                      new_G,
                                                      new_B);
@@ -415,10 +410,11 @@ namespace PhotoEditor {
                 for (int i = 0; i < width; i++) {
                     worker.ReportProgress(50 * i / width);
                     for (int j = 0; j < height; j++) {
-                        RawColor current_pixel = source_image[i, j];
-                        max_R = Math.Max((int)current_pixel.R, max_R);
-                        max_G = Math.Max((int)current_pixel.G, max_G);
-                        max_B = Math.Max((int)current_pixel.B, max_B);
+                        RawColor current_color = source_image[i, j];
+
+                        max_R = Math.Max((int)current_color.R, max_R);
+                        max_G = Math.Max((int)current_color.G, max_G);
+                        max_B = Math.Max((int)current_color.B, max_B);
                     }
                 }
 
@@ -437,9 +433,12 @@ namespace PhotoEditor {
     abstract class MatrixFilter: Filter {
         protected float[,] kernel = null;
         protected int kernel_width, kernel_height;
-        protected int base_dx, base_dy; // Смещение левого верхнего угла ядра относительно текущего пикселя
+        protected int base_dx, base_dy; // Offset of the upper-left corner of the kernel relative to the current pixel
 
         protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+
+            RawColor source_color = source_image[x, y];
+
             float result_R = 0;
             float result_G = 0;
             float result_B = 0;
@@ -454,6 +453,7 @@ namespace PhotoEditor {
                     int ny = clamp(y + base_dy + dy, 0, height - 1);
 
                     RawColor neighbor_color = source_image[nx, ny];
+
                     float kernel_coefficient = kernel[dx, dy];
                     result_R += kernel_coefficient * neighbor_color.R;
                     result_G += kernel_coefficient * neighbor_color.G;
@@ -461,10 +461,12 @@ namespace PhotoEditor {
                 }
             }
 
-            return new RawColor(255,
-                                result_R,
-                                result_G,
-                                result_B);
+            RawColor result_color = new RawColor(source_color.A,
+                                                 result_R,
+                                                 result_G,
+                                                 result_B);
+
+            return result_color;
         }
     }
 
@@ -502,7 +504,7 @@ namespace PhotoEditor {
 
                 kernel = new float[kernel_width, kernel_height];
 
-                for (int x = 0; x < kernel_width; x++) {
+                for (int x = 0; x < radius * 2 + 1; x++) {
                     kernel[x, x] = (float)1 / kernel_width ;
                 }
 
@@ -517,6 +519,7 @@ namespace PhotoEditor {
 
             class MidianFilterFunctions {
 
+                public static float[] buffer;
                 public static float[] lower_buffer;
                 public static float[] upper_buffer;
 
@@ -525,27 +528,38 @@ namespace PhotoEditor {
 
                 public static float findOrderStatistic(float[] array, int k) {
 
+                    buffer = new float[array.Length];
+                    for (int i = 0; i < array.Length; i++) {
+                        buffer[i] = array[i];
+                    }
+                        
+                    lower_buffer = new float[array.Length];
+                    upper_buffer = new float[array.Length];
+
                     int l = 0;
                     int r = array.Length;
 
-                    lower_buffer = new float[r];
-                    upper_buffer = new float[r];
+                    Random random = new Random();
 
                     while (r - l > 1) {
 
-                        float x = array[l];
-                        s1 = s2 = 0;
+                        int p = random.Next(l, r);
+                        float x = buffer[p];
+
+                        s1 = 0;
+                        s2 = 0;
+
                         equal_cnt = 0;
 
                         for (int i = l; i < r; i++) {
-                            if (array[i] < x) {
-                                lower_buffer[s1++] = array[i];
+                            if (buffer[i] < x) {
+                                lower_buffer[s1++] = buffer[i];
                             }
-                            else if (array[i] > x) {
-                                upper_buffer[s2++] = array[i];
+                            else if (buffer[i] > x) {
+                                upper_buffer[s2++] = buffer[i];
                             }
                             else {
-                                ++equal_cnt;
+                                equal_cnt++;
                             }
                         }
 
@@ -555,26 +569,26 @@ namespace PhotoEditor {
                             r = s1;
 
                             for (int i = 0; i < s1; i++) {
-                                array[i] = lower_buffer[i];
+                                buffer[i] = lower_buffer[i];
                             }
 
                         }
-                        else if (k < s1 + equal_cnt) {
-                            return x;
-                        }
-                        else {
+                        else if (k >= s1 + equal_cnt) {
                             l = s1 + equal_cnt;
                             r = s1 + equal_cnt + s2;
 
                             for (int i = 0; i < s2; i++) {
-                                array[s1 + equal_cnt + i] = upper_buffer[i];
+                                buffer[s1 + equal_cnt + i] = upper_buffer[i];
                             }
 
                             k -= s1 + equal_cnt;
                         }
+                        else {
+                            return x;
+                        }
                     }
 
-                    return array[l];
+                    return buffer[l];
                 }
             }
 
@@ -588,13 +602,14 @@ namespace PhotoEditor {
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+                int width = source_image.GetLength(0);
+                int height = source_image.GetLength(1);
+
+                RawColor source_color = source_image[x, y];
 
                 float[] colors_R = new float[kernel_width * kernel_height];
                 float[] colors_G = new float[kernel_width * kernel_height];
                 float[] colors_B = new float[kernel_width * kernel_height];
-
-                int width = source_image.GetLength(0);
-                int height = source_image.GetLength(1);
 
                 int p = 0;
                 for (int dx = 0; dx < kernel_width; dx++) {
@@ -612,14 +627,17 @@ namespace PhotoEditor {
                         ++p;
                     }
                 }
+
                 float result_R = MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
                 float result_G = MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
                 float result_B = MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
 
-                return new RawColor(255,
-                                    result_R,
-                                    result_G,
-                                    result_B);
+                RawColor result_color = new RawColor(source_color.A,
+                                                     result_R,
+                                                     result_G,
+                                                     result_B);
+
+                return result_color;
             }
         }
 
@@ -638,6 +656,7 @@ namespace PhotoEditor {
 
                 for (int i = 0; i < kernel_width; i++) {
                     for (int j = 0; j < kernel_height; j++) {
+
                         int di = Math.Abs(i - kernel_width / 2);
                         int dj = Math.Abs(i - kernel_width / 2);
 
@@ -677,6 +696,9 @@ namespace PhotoEditor {
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+
+                RawColor source_color = source_image[x, y];
+
                 float result_R = 0;
                 float result_G = 0;
                 float result_B = 0;
@@ -701,10 +723,12 @@ namespace PhotoEditor {
                     }
                 }
 
-                return new RawColor(255,
-                                    result_R,
-                                    result_G,
-                                    result_B);
+                RawColor result_color = new RawColor(source_color.A,
+                                                     result_R,
+                                                     result_G,
+                                                     result_B);
+
+                return result_color;
             }
         }
 
@@ -728,6 +752,9 @@ namespace PhotoEditor {
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+
+                RawColor source_color = source_image[x, y];
+
                 float result_R = 255;
                 float result_G = 255;
                 float result_B = 255;
@@ -752,14 +779,35 @@ namespace PhotoEditor {
                     }
                 }
 
-                return new RawColor(255,
-                                    result_R,
-                                    result_G,
-                                    result_B);
+                RawColor result_color = new RawColor(source_color.A,
+                                                     result_R,
+                                                     result_G,
+                                                     result_B);
+
+                return result_color;
             }
 
         }
 
+        class SharpnessFilter : MatrixFilter {
+
+            public static string name = "Sharpness";
+
+            public SharpnessFilter() {
+
+                kernel_width = 3;
+                kernel_height = 3;
+
+                kernel = new float[,] {
+                    {  0, -1,  0 },
+                    { -1,  5, -1 },
+                    {  0, -1,  0 }
+                };
+
+                base_dx = -1;
+                base_dy = -1;
+            }
+        }
     }
 
     abstract class AdvancedFilter : Filter {
@@ -789,7 +837,6 @@ namespace PhotoEditor {
         }
 
         public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
-
             int width = source_image.GetLength(0);
             int height = source_image.GetLength(1);
 
@@ -799,7 +846,6 @@ namespace PhotoEditor {
                     result_image[i, j] = source_image[i, j];
                 }
             }
-
 
             for (int i = 0; i < filters.Length; i++) {
                 result_image = filters[i].processImageRaw(result_image, worker);
@@ -821,18 +867,11 @@ namespace PhotoEditor {
                     kernel_width = 3;
                     kernel_height = 3;
 
-                    kernel = new float[kernel_width, kernel_height];
-
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            kernel[i, j] = 0;
-                        }
-                    }
-
-                    kernel[0, 1] = 1;
-                    kernel[1, 0] = -1;
-                    kernel[1, 2] = 1;
-                    kernel[2, 1] = -1;
+                    kernel = new float[, ] {
+                        {  0,  1, 0 },
+                        { -1,  0, 1 },
+                        {  0, -1, 0 }
+                    };
 
                     base_dx = -1;
                     base_dy = -1;
@@ -877,14 +916,14 @@ namespace PhotoEditor {
                     kernel_width = 3;
                     kernel_height = 3;
 
-                    base_dx = -1;
-                    base_dy = -1;
-
                     kernel = new float[3, 3] {
                         {-1, -2, -1 },
                         { 0,  0,  0 },
                         { 1,  2,  1 }
                     };
+
+                    base_dx = -1;
+                    base_dy = -1;
                 }
             }
 
@@ -895,14 +934,14 @@ namespace PhotoEditor {
                     kernel_width = 3;
                     kernel_height = 3;
 
-                    base_dx = -1;
-                    base_dy = -1;
-
                     kernel = new float[3, 3] {
                         { -1, 0, 1 },
                         { -2, 0, 2 },
                         { -1, 0, 1 }
                     };
+
+                    base_dx = -1;
+                    base_dy = -1;
                 }
             }
 
@@ -911,7 +950,6 @@ namespace PhotoEditor {
             }
 
             public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
-
                 int width = source_image.GetLength(0);
                 int height = source_image.GetLength(1);
 
@@ -948,7 +986,6 @@ namespace PhotoEditor {
                                                           new_B);
                     }
                 }
-
                 return result_image;
             }
         }
@@ -957,39 +994,39 @@ namespace PhotoEditor {
 
             public static string name = "Scharr";
 
-            protected class SobelCoreFilter1 : MatrixFilter {
+            protected class ScharrCoreFilter1 : MatrixFilter {
 
-                public SobelCoreFilter1() {
+                public ScharrCoreFilter1() {
 
                     kernel_width = 3;
                     kernel_height = 3;
-
-                    base_dx = -1;
-                    base_dy = -1;
 
                     kernel = new float[3, 3] {
                         { -3, -10, -3 },
                         {  0,   0,  0 },
                         {  3,  10,  3 }
                     };
-                }
-            }
-
-            protected class SobelCoreFilter2 : MatrixFilter {
-
-                public SobelCoreFilter2() {
-
-                    kernel_width = 3;
-                    kernel_height = 3;
 
                     base_dx = -1;
                     base_dy = -1;
+                }
+            }
+
+            protected class ScharrCoreFilter2 : MatrixFilter {
+
+                public ScharrCoreFilter2() {
+
+                    kernel_width = 3;
+                    kernel_height = 3;
 
                     kernel = new float[3, 3] {
                         {  -3, 0,  3 },
                         { -10, 0, 10 },
                         {  -3, 0,  3 }
                     };
+
+                    base_dx = -1;
+                    base_dy = -1;
                 }
             }
 
@@ -998,14 +1035,13 @@ namespace PhotoEditor {
             }
 
             public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
-
                 int width = source_image.GetLength(0);
                 int height = source_image.GetLength(1);
 
-                SobelCoreFilter1 filter1 = new SobelCoreFilter1();
+                ScharrCoreFilter1 filter1 = new ScharrCoreFilter1();
                 RawColor[,] temp_image1 = filter1.processImageRaw(source_image, worker);
 
-                SobelCoreFilter2 filter2 = new SobelCoreFilter2();
+                ScharrCoreFilter2 filter2 = new ScharrCoreFilter2();
                 RawColor[,] temp_image2 = filter2.processImageRaw(source_image, worker);
 
                 RawColor[,] result_image = new RawColor[width, height];
@@ -1035,10 +1071,8 @@ namespace PhotoEditor {
                                                           new_B);
                     }
                 }
-
                 return result_image;
             }
-
         }
     }
 }
