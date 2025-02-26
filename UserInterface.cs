@@ -8,11 +8,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static PhotoEditor.UserInterface;
 
 namespace PhotoEditor {
+    public class FilterParameter {
+        public string param_name { get; }
+        public Type param_type { get; }
+        public object default_value { get; }
+        public object min_value { get; } // [
+        public object max_value { get; } // ]
+
+        public FilterParameter(string param_name, Type param_type, object default_value, object min_value, object max_value) {
+            this.param_name = param_name;
+            this.param_type = param_type;
+            this.default_value = default_value;
+            this.min_value = min_value;
+            this.max_value = max_value;
+        }
+    }
+
     public partial class UserInterface : Form {
 
         Bitmap image;
+
+        public class FilterSettingsForm : Form {
+
+            public FilterSettingsForm(List<FilterParameter> parameters) {
+
+            }
+
+        }
+
         public UserInterface() {
             InitializeComponent();
         }

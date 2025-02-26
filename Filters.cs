@@ -7,6 +7,7 @@ using System.Drawing;
 using System.ComponentModel;
 using PhotoEditor.SpotFilters;
 using System.Windows.Forms.Design;
+using PhotoEditor;
 
 namespace PhotoEditor {
 
@@ -132,6 +133,12 @@ namespace PhotoEditor {
             temp_image = processImageRaw(temp_image, worker);
             return RawColor.ArrayToBitmap(temp_image);
         }
+
+        public virtual List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
     }
 
     abstract class SpotFilter: Filter {
@@ -201,6 +208,12 @@ namespace PhotoEditor {
                                                      intensity - sepia_strength);
                 return result_color;
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Sepia Strength", typeof(int), 20, 0, 255)
+                };
+            }
         }
 
         class BrightnessFilter: SpotFilter {
@@ -221,6 +234,12 @@ namespace PhotoEditor {
                                                      source_color.G + brightness_delta,
                                                      source_color.B + brightness_delta);
                 return result_color;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Brightness Delta", typeof(int), 20, 0, 255)
+                };
             }
         }
 
