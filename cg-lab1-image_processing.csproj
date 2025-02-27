@@ -65,8 +65,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Filters.cs" />
-    <Compile Include="PersistentStack.cs" />
-    <Compile Include="UserInterface.cs" />
+    <Compile Include="Core.cs" />
+    <Compile Include="RawColor.cs" />
+    <Compile Include="UserInterface.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="UserInterface.Designer.cs">
       <DependentUpon>UserInterface.cs</DependentUpon>
     </Compile>

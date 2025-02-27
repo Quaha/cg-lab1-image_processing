@@ -11,39 +11,161 @@ using System.Windows.Forms;
 using static PhotoEditor.UserInterface;
 
 namespace PhotoEditor {
-    public class FilterParameter {
-        public string param_name { get; }
-        public Type param_type { get; }
-        public object default_value { get; }
-        public object min_value { get; } // [
-        public object max_value { get; } // ]
-
-        public FilterParameter(string param_name, Type param_type, object default_value, object min_value, object max_value) {
-            this.param_name = param_name;
-            this.param_type = param_type;
-            this.default_value = default_value;
-            this.min_value = min_value;
-            this.max_value = max_value;
-        }
-    }
-
     public partial class UserInterface : Form {
 
         Bitmap image;
 
-        public class FilterSettingsForm : Form {
+        private static void showError(string message) {
+            MessageBox.Show(
+                message,
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
+        }
 
-            public FilterSettingsForm(List<FilterParameter> parameters) {
+        public class FilterParametersForm : Form {
 
+            protected Form form;
+
+            protected List<FilterParameter> required_parameters;
+            protected string filter_name;
+
+            Dictionary<string, TextBox> text_boxes;
+
+            protected Dictionary<string, object> result_parameters;
+
+            public FilterParametersForm(List<FilterParameter> parameters, string filter_name) {
+                this.required_parameters = parameters;
+                this.filter_name = filter_name;
             }
 
+            private void applyButton_Click(object sender, EventArgs e) {
+                bool input_is_valid = true;
+
+                result_parameters = new Dictionary<string, object>();
+
+                foreach (FilterParameter param in required_parameters) {
+                    TextBox current_text_box = text_boxes[param.param_name];
+                    string input_text = current_text_box.Text;
+
+                    if (string.IsNullOrEmpty(input_text)) {
+                        showError($"{param.param_name} field can not be empty!");
+                        input_is_valid = false;
+                        break;
+                    }
+
+                    object value = null;
+
+                    try {
+                        if (param.param_type == typeof(int)) {
+                            value = int.Parse(input_text);
+                            if ((int)value < (int)param.min_value || (int)value > (int)param.max_value) {
+                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}!");
+                                input_is_valid = false;
+                                break;
+                            }
+                        }
+                        else if (param.param_type == typeof(double)) {
+                            value = double.Parse(input_text, System.Globalization.CultureInfo.InvariantCulture);
+                            if ((double)value < (double)param.min_value || (double)value > (double)param.max_value) {
+                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}!");
+                                input_is_valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    catch {
+                        showError($"Invalid format for {param.param_name}. Expected a valid value.");
+                        input_is_valid = false;
+                        break;
+                    }
+
+                    if (input_is_valid) {
+                        result_parameters[param.param_name] = value;
+                    }
+                }
+
+                if (input_is_valid) {
+                    form.DialogResult = DialogResult.OK;
+                }
+            }
+
+            public void showParametersDialog() {
+                Dictionary<string, object> result = new Dictionary<string, object>();
+
+                form = new Form {
+                    Text = filter_name + " Filter",
+                    FormBorderStyle = FormBorderStyle.FixedSingle,
+                    MaximizeBox = false,
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    StartPosition = FormStartPosition.CenterParent,
+                    ShowInTaskbar = false
+                };
+
+                TableLayoutPanel panel = new TableLayoutPanel {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 3,
+                    RowCount = required_parameters.Count + 1, // +1 for the "Apply" button
+                    AutoSize = true
+                };
+
+                panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30)); // For labels
+                panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40)); // For text boxes
+                panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30)); // For hints
+
+                form.Controls.Add(panel);
+
+                text_boxes = new Dictionary<string, TextBox>();
+
+                for (int i = 0; i < required_parameters.Count; i++) {
+                    Label label = new Label {
+                        Text = required_parameters[i].param_name + ":",
+                        AutoSize = true,
+                        Anchor = AnchorStyles.Right
+                    };
+
+                    TextBox text_box = new TextBox {
+                        Text = required_parameters[i].default_value.ToString(),
+                        Dock = DockStyle.Fill
+                    };
+
+                    Label range_label = new Label {
+                        Text = $"[ {required_parameters[i].min_value} — {required_parameters[i].max_value} ]",
+                        AutoSize = true,
+                        Anchor = AnchorStyles.Left
+                    };
+
+                    panel.Controls.Add(label, 0, i); // Label to the first column
+                    panel.Controls.Add(text_box, 1, i); // Text box to the second column
+                    panel.Controls.Add(range_label, 2, i); // Range label to the third column
+
+                    text_boxes[required_parameters[i].param_name] = text_box; // Bound: param_name -> text box
+                }
+
+                Button apply_button = new Button {
+                    Text = "Apply",
+                    Dock = DockStyle.Fill
+                };
+
+                panel.Controls.Add(apply_button, 1, required_parameters.Count);
+
+                apply_button.Click += applyButton_Click; // Link button to the realization
+
+                form.ShowDialog();
+            }
+
+            public Dictionary<string, object> getResultParameters() {
+                return result_parameters;
+            }
         }
 
         public UserInterface() {
             InitializeComponent();
         }
 
-        private void File_Open_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void File_Open_OpenImage_ToolStripMenuItem_Click(object sender, EventArgs e) {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
 
                 dialog.Filter = "Image files|*.png;*.jpg;*.bmp|All files(*.*)|*.*";
@@ -57,16 +179,11 @@ namespace PhotoEditor {
             }
         }
 
-        private void File_SaveAs_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void File_Save_SaveImageAs_ToolStripMenuItem_Click(object sender, EventArgs e) {
             using (SaveFileDialog dialog = new SaveFileDialog()) {
 
                 if (image == null) {
-                    MessageBox.Show(
-                        "The image is missing!",
-                        "Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                    showError("The image is missing!");
                     return;
                 }
 
@@ -96,6 +213,8 @@ namespace PhotoEditor {
 
         private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
             SpotFilters.InversionFilter filter = new SpotFilters.InversionFilter();
+            FilterParametersForm form = new FilterParametersForm(filter.getFilterParameters(), filter.getName());
+            form.showParametersDialog();
             progress_updater.RunWorkerAsync(filter);
         }
 
@@ -151,6 +270,8 @@ namespace PhotoEditor {
 
         private void MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
             MatrixFilters.GaussianFilter filter = new MatrixFilters.GaussianFilter();
+            FilterParametersForm form = new FilterParametersForm(filter.getFilterParameters(), filter.getName());
+            form.showParametersDialog();
             progress_updater.RunWorkerAsync(filter);
         }
 

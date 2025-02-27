@@ -8,77 +8,32 @@ using System.ComponentModel;
 using PhotoEditor.SpotFilters;
 using System.Windows.Forms.Design;
 using PhotoEditor;
+using Core;
 
 namespace PhotoEditor {
+    public class FilterParameter {
+        public string param_name { get; }
+        public Type param_type { get; }
+        public object default_value { get; }
+        public object min_value { get; } // [
+        public object max_value { get; } // ]
 
-    public struct RawColor {
-        public float A, R, G, B;
-
-        public RawColor(float A, float R, float G, float B) {
-            this.A = A;
-            this.R = R;
-            this.G = G;
-            this.B = B;
-        }
-
-        public Color ToColor() {
-            return Color.FromArgb(
-                Filter.clamp((int)A),
-                Filter.clamp((int)R),
-                Filter.clamp((int)G),
-                Filter.clamp((int)B)
-            );
-        }
-
-        public static RawColor FromColor(Color c) {
-            return new RawColor(c.A, c.R , c.G , c.B);
-        }
-
-        public static RawColor[,] BitmapToArray(Bitmap bitmap) {
-            int width = bitmap.Width;
-            int height = bitmap.Height;
-
-            RawColor[,] array = new RawColor[width, height];
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    array[x, y] = FromColor(bitmap.GetPixel(x, y));
-                }
-            }
-            return array;
-        }
-
-        public static Bitmap ArrayToBitmap(RawColor[,] array) {
-            int width = array.GetLength(0);
-            int height = array.GetLength(1);
-
-            Bitmap bitmap = new Bitmap(width, height);
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    bitmap.SetPixel(x, y, array[x, y].ToColor());
-                }
-            }
-            return bitmap;
-        }
-
-        public static void makeCorrect(RawColor[,] array) {
-            int width = array.GetLength(0);
-            int height = array.GetLength(1);
-
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    RawColor c = array[i, j];
-                    array[i, j] = new RawColor(Filter.clamp(c.A),
-                                               Filter.clamp(c.R),
-                                               Filter.clamp(c.G),
-                                               Filter.clamp(c.B));
-                }
-            }
+        public FilterParameter(string param_name, Type param_type, object default_value, object min_value, object max_value) {
+            this.param_name = param_name;
+            this.param_type = param_type;
+            this.default_value = default_value;
+            this.min_value = min_value;
+            this.max_value = max_value;
         }
     }
 
     abstract class Filter {
+
+        protected static string name;
+
+        public string getName() {
+            return name;
+        }
 
         public static int clamp(int value, int min = 0, int max = 255) { // [min, max]
             if (value < min) {
@@ -134,11 +89,7 @@ namespace PhotoEditor {
             return RawColor.ArrayToBitmap(temp_image);
         }
 
-        public virtual List<FilterParameter> getFilterParameters() {
-            return new List<FilterParameter> {
-
-            };
-        }
+        public abstract List<FilterParameter> getFilterParameters();
     }
 
     abstract class SpotFilter: Filter {
@@ -149,10 +100,14 @@ namespace PhotoEditor {
 
         class InversionFilter : SpotFilter {
 
-            public static string name = "Inversion"; 
-
             public InversionFilter() {
+                name = "Inversion";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -168,10 +123,14 @@ namespace PhotoEditor {
 
         class GrayScaleFilter : SpotFilter {
 
-            public static string name = "GrayScale";
-
             public GrayScaleFilter() {
+                name = "GrayScale";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -189,12 +148,18 @@ namespace PhotoEditor {
 
         class SepiaFilter: SpotFilter {
 
-            public static string name = "Sepia";
-
             protected int sepia_strength;
 
             public SepiaFilter(int sepia_strength = 20) {
+                name = "Sepia";
+
                 this.sepia_strength = sepia_strength;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Sepia Strength", typeof(int), 20, -255, 255)
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -208,22 +173,22 @@ namespace PhotoEditor {
                                                      intensity - sepia_strength);
                 return result_color;
             }
-
-            public override List<FilterParameter> getFilterParameters() {
-                return new List<FilterParameter> {
-                    new FilterParameter("Sepia Strength", typeof(int), 20, 0, 255)
-                };
-            }
         }
 
         class BrightnessFilter: SpotFilter {
 
-            public static string name = "Brightness";
-
             protected int brightness_delta;
 
             public BrightnessFilter(int brightness_delta = 20) {
+                name = "Brightness";
+
                 this.brightness_delta = brightness_delta;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Brightness Delta", typeof(int), 20, -255, 255)
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -235,23 +200,24 @@ namespace PhotoEditor {
                                                      source_color.B + brightness_delta);
                 return result_color;
             }
-
-            public override List<FilterParameter> getFilterParameters() {
-                return new List<FilterParameter> {
-                    new FilterParameter("Brightness Delta", typeof(int), 20, 0, 255)
-                };
-            }
         }
 
         class ShiftFilter : SpotFilter {
 
-            public static string name = "Shift";
-
             protected int dx, dy;
 
             public ShiftFilter(int dx = -50, int dy = 50) {
+                name = "Shift";
+
                 this.dx = -dx;
                 this.dy = dy;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("X offset", typeof(int), 0, int.MinValue, int.MaxValue),
+                    new FilterParameter("Y offset", typeof(int), 0, int.MinValue, int.MaxValue)
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -273,14 +239,19 @@ namespace PhotoEditor {
 
         class GrayWorldFilter : SpotFilter {
 
-            public static string name = "GrayWorld";
-
             protected float average_R, average_G, average_B;
             protected float average;
 
             public GrayWorldFilter() {
-
+                name = "GrayWorld";
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
+            }
+
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
                 RawColor source_color = source_image[x, y];
@@ -334,13 +305,17 @@ namespace PhotoEditor {
 
         class AutolevelsFilter: SpotFilter {
 
-            public static string name = "Autolevels";
-
             protected float min_R, min_G, min_B;
             protected float max_R, max_G, max_B;
 
             public AutolevelsFilter() {
+                name = "Autolevels";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -395,12 +370,16 @@ namespace PhotoEditor {
 
         class PerfectReflectorFilter: SpotFilter {
 
-            public static string name = "PerfectReflector";
-
             protected int max_R, max_G, max_B;
 
             public PerfectReflectorFilter() {
+                name = "PerfectReflector";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -492,9 +471,8 @@ namespace PhotoEditor {
     namespace MatrixFilters {
         class BlurFilter : MatrixFilter {
 
-            public static string name = "Blur";
-
             public BlurFilter(int radius = 1) {
+                name = "Blur";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -510,13 +488,18 @@ namespace PhotoEditor {
                 base_dx = -radius;
                 base_dy = -radius;
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                };
+            }
         }
 
         class MotionBlurFilter : MatrixFilter {
 
-            public static string name = "MotionBlur";
-
             public MotionBlurFilter(int radius = 1) {
+                name = "MotionBlur";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -530,94 +513,31 @@ namespace PhotoEditor {
                 base_dx = -radius;
                 base_dy = -radius;
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                };
+            }
+
         }
 
         class MedianFilter : MatrixFilter {
 
-            public static string name = "Median";
-
-            class MidianFilterFunctions {
-
-                public static float[] buffer;
-                public static float[] lower_buffer;
-                public static float[] upper_buffer;
-
-                public static int s1, s2;
-                public static int equal_cnt;
-
-                public static float findOrderStatistic(float[] array, int k) {
-
-                    buffer = new float[array.Length];
-                    for (int i = 0; i < array.Length; i++) {
-                        buffer[i] = array[i];
-                    }
-                        
-                    lower_buffer = new float[array.Length];
-                    upper_buffer = new float[array.Length];
-
-                    int l = 0;
-                    int r = array.Length;
-
-                    Random random = new Random();
-
-                    while (r - l > 1) {
-
-                        int p = random.Next(l, r);
-                        float x = buffer[p];
-
-                        s1 = 0;
-                        s2 = 0;
-
-                        equal_cnt = 0;
-
-                        for (int i = l; i < r; i++) {
-                            if (buffer[i] < x) {
-                                lower_buffer[s1++] = buffer[i];
-                            }
-                            else if (buffer[i] > x) {
-                                upper_buffer[s2++] = buffer[i];
-                            }
-                            else {
-                                equal_cnt++;
-                            }
-                        }
-
-                        if (k < s1) {
-
-                            l = 0;
-                            r = s1;
-
-                            for (int i = 0; i < s1; i++) {
-                                buffer[i] = lower_buffer[i];
-                            }
-
-                        }
-                        else if (k >= s1 + equal_cnt) {
-                            l = s1 + equal_cnt;
-                            r = s1 + equal_cnt + s2;
-
-                            for (int i = 0; i < s2; i++) {
-                                buffer[s1 + equal_cnt + i] = upper_buffer[i];
-                            }
-
-                            k -= s1 + equal_cnt;
-                        }
-                        else {
-                            return x;
-                        }
-                    }
-
-                    return buffer[l];
-                }
-            }
-
             public MedianFilter(int radius = 1) {
+                name = "Median";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
 
                 base_dx = -radius;
                 base_dy = -radius;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -647,9 +567,9 @@ namespace PhotoEditor {
                     }
                 }
 
-                float result_R = MidianFilterFunctions.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
-                float result_G = MidianFilterFunctions.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
-                float result_B = MidianFilterFunctions.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
+                float result_R = Algorithms.findOrderStatistic(colors_R, kernel_width * kernel_height / 2);
+                float result_G = Algorithms.findOrderStatistic(colors_G, kernel_width * kernel_height / 2);
+                float result_B = Algorithms.findOrderStatistic(colors_B, kernel_width * kernel_height / 2);
 
                 RawColor result_color = new RawColor(source_color.A,
                                                      result_R,
@@ -662,9 +582,8 @@ namespace PhotoEditor {
 
         class GaussianFilter : MatrixFilter {
 
-            public static string name = "Gaussian";
-
             public GaussianFilter(int radius = 3, float sigma = 2) {
+                name = "Gaussian";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -693,13 +612,19 @@ namespace PhotoEditor {
                 base_dx = -radius;
                 base_dy = -radius;
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                    new FilterParameter("Sigma", typeof(int), 2, 1, 10),
+                };
+            }
         }
 
         class ExpansionFilter : MatrixFilter {
 
-            public static string name = "Expansion";
-
             public ExpansionFilter() {
+                name = "Expansion";
 
                 kernel_width = 3;
                 kernel_height = 3;
@@ -712,6 +637,12 @@ namespace PhotoEditor {
 
                 base_dx = -1;
                 base_dy = -1;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -753,9 +684,8 @@ namespace PhotoEditor {
 
         class NarrowingFilter : MatrixFilter {
 
-            public static string name = "Narrowing";
-
             public NarrowingFilter() {
+                name = "Narrowing";
 
                 kernel_width = 3;
                 kernel_height = 3;
@@ -768,6 +698,12 @@ namespace PhotoEditor {
 
                 base_dx = -1;
                 base_dy = -1;
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -810,9 +746,8 @@ namespace PhotoEditor {
 
         class SharpnessFilter : MatrixFilter {
 
-            public static string name = "Sharpness";
-
             public SharpnessFilter() {
+                name = "Sharpness";
 
                 kernel_width = 3;
                 kernel_height = 3;
@@ -826,6 +761,12 @@ namespace PhotoEditor {
                 base_dx = -1;
                 base_dy = -1;
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
+            }
         }
     }
 
@@ -834,10 +775,14 @@ namespace PhotoEditor {
 
         protected class RangeCorrectionFilter : SpotFilter {
 
-            public static string name = "RangeCorrectionFilter";
-
             public RangeCorrectionFilter() {
+                name = "RangeCorrectionFilter";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
@@ -878,8 +823,6 @@ namespace PhotoEditor {
 
         class EmbossingFilter: AdvancedFilter {
 
-            public static string name = "Embossing";
-
             protected class EmbossingCoreFilter1 : MatrixFilter {
                 public EmbossingCoreFilter1() {
 
@@ -895,9 +838,16 @@ namespace PhotoEditor {
                     base_dx = -1;
                     base_dy = -1;
                 }
+
+                public override List<FilterParameter> getFilterParameters() {
+                    return new List<FilterParameter> {
+
+                    };
+                }
             }
 
             public EmbossingFilter() {
+                name = "Embossing";
 
                 filters = new Filter[] {
                     new EmbossingCoreFilter1(),
@@ -906,13 +856,18 @@ namespace PhotoEditor {
                     new GrayScaleFilter(),
                 };
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
+            }
         }
 
         class PaperFilter : AdvancedFilter {
 
-            public static string name = "Paper";
-
             public PaperFilter() {
+                name = "Paper";
 
                 filters = new Filter[] {
                     new EmbossingFilter(),
@@ -922,11 +877,15 @@ namespace PhotoEditor {
                     new InversionFilter(),
                 };
             }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
+            }
         }
 
         class SobelFilter : AdvancedFilter {
-
-            public static string name = "Sobel";
 
             protected class SobelCoreFilter1 : MatrixFilter {
 
@@ -943,6 +902,12 @@ namespace PhotoEditor {
 
                     base_dx = -1;
                     base_dy = -1;
+                }
+
+                public override List<FilterParameter> getFilterParameters() {
+                    return new List<FilterParameter> {
+
+                    };
                 }
             }
 
@@ -962,10 +927,22 @@ namespace PhotoEditor {
                     base_dx = -1;
                     base_dy = -1;
                 }
+
+                public override List<FilterParameter> getFilterParameters() {
+                    return new List<FilterParameter> {
+
+                    };
+                }
             }
 
             public SobelFilter() {
+                name = "Sobel";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
@@ -1011,8 +988,6 @@ namespace PhotoEditor {
 
         class ScharrFilter : AdvancedFilter {
 
-            public static string name = "Scharr";
-
             protected class ScharrCoreFilter1 : MatrixFilter {
 
                 public ScharrCoreFilter1() {
@@ -1028,6 +1003,12 @@ namespace PhotoEditor {
 
                     base_dx = -1;
                     base_dy = -1;
+                }
+
+                public override List<FilterParameter> getFilterParameters() {
+                    return new List<FilterParameter> {
+
+                    };
                 }
             }
 
@@ -1047,10 +1028,22 @@ namespace PhotoEditor {
                     base_dx = -1;
                     base_dy = -1;
                 }
+
+                public override List<FilterParameter> getFilterParameters() {
+                    return new List<FilterParameter> {
+
+                    };
+                }
             }
 
             public ScharrFilter() {
+                name = "Scharr";
+            }
 
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+
+                };
             }
 
             public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
