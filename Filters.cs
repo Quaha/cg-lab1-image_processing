@@ -31,7 +31,7 @@ namespace PhotoEditor {
 
         protected static string name;
 
-        public string getName() {
+        public static string getName() {
             return name;
         }
 
@@ -88,8 +88,6 @@ namespace PhotoEditor {
             temp_image = processImageRaw(temp_image, worker);
             return RawColor.ArrayToBitmap(temp_image);
         }
-
-        public abstract List<FilterParameter> getFilterParameters();
     }
 
     abstract class SpotFilter: Filter {
@@ -100,11 +98,15 @@ namespace PhotoEditor {
 
         class InversionFilter : SpotFilter {
 
+            public InversionFilter(Dictionary<string, object> parameters) {
+                name = "Inversion";
+            }
+
             public InversionFilter() {
                 name = "Inversion";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -123,11 +125,15 @@ namespace PhotoEditor {
 
         class GrayScaleFilter : SpotFilter {
 
+            public GrayScaleFilter(Dictionary<string, object> parameters) {
+                name = "GrayScale";
+            }
+
             public GrayScaleFilter() {
                 name = "GrayScale";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -150,13 +156,19 @@ namespace PhotoEditor {
 
             protected int sepia_strength;
 
+            public SepiaFilter(Dictionary<string, object> parameters) {
+                name = "Sepia";
+
+                this.sepia_strength = (int)parameters["Sepia Strength"];
+            }
+
             public SepiaFilter(int sepia_strength = 20) {
                 name = "Sepia";
 
                 this.sepia_strength = sepia_strength;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Sepia Strength", typeof(int), 20, -255, 255)
                 };
@@ -179,13 +191,19 @@ namespace PhotoEditor {
 
             protected int brightness_delta;
 
+            public BrightnessFilter(Dictionary<string, object> parameters) {
+                name = "Brightness";
+
+                this.brightness_delta = (int)parameters["Brightness Delta"];
+            }
+
             public BrightnessFilter(int brightness_delta = 20) {
                 name = "Brightness";
 
                 this.brightness_delta = brightness_delta;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Brightness Delta", typeof(int), 20, -255, 255)
                 };
@@ -206,14 +224,21 @@ namespace PhotoEditor {
 
             protected int dx, dy;
 
-            public ShiftFilter(int dx = -50, int dy = 50) {
+            public ShiftFilter(Dictionary<string, object> parameters) {
+                name = "Shift";
+
+                this.dx = -(int)parameters["X offset"];
+                this.dy = (int)parameters["Y offset"];
+            }
+
+            public ShiftFilter(int dx = 0, int dy = 0) {
                 name = "Shift";
 
                 this.dx = -dx;
                 this.dy = dy;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("X offset", typeof(int), 0, int.MinValue, int.MaxValue),
                     new FilterParameter("Y offset", typeof(int), 0, int.MinValue, int.MaxValue)
@@ -242,11 +267,15 @@ namespace PhotoEditor {
             protected float average_R, average_G, average_B;
             protected float average;
 
+            public GrayWorldFilter(Dictionary<string, object> parameters) {
+                name = "GrayWorld";
+            }
+
             public GrayWorldFilter() {
                 name = "GrayWorld";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -308,11 +337,15 @@ namespace PhotoEditor {
             protected float min_R, min_G, min_B;
             protected float max_R, max_G, max_B;
 
+            public AutolevelsFilter(Dictionary<string, object> parameters) {
+                name = "Autolevels";
+            }
+
             public AutolevelsFilter() {
                 name = "Autolevels";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -372,11 +405,15 @@ namespace PhotoEditor {
 
             protected int max_R, max_G, max_B;
 
+            public PerfectReflectorFilter(Dictionary<string, object> parameters) {
+                name = "PerfectReflector";
+            }
+
             public PerfectReflectorFilter() {
                 name = "PerfectReflector";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -489,7 +526,7 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Radius", typeof(int), 1, 0, 10),
                 };
@@ -514,7 +551,7 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Radius", typeof(int), 1, 0, 10),
                 };
@@ -534,7 +571,7 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Radius", typeof(int), 1, 0, 10),
                 };
@@ -613,7 +650,7 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Radius", typeof(int), 1, 0, 10),
                     new FilterParameter("Sigma", typeof(int), 2, 1, 10),
@@ -639,7 +676,7 @@ namespace PhotoEditor {
                 base_dy = -1;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -700,7 +737,7 @@ namespace PhotoEditor {
                 base_dy = -1;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -762,7 +799,7 @@ namespace PhotoEditor {
                 base_dy = -1;
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -779,7 +816,7 @@ namespace PhotoEditor {
                 name = "RangeCorrectionFilter";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -839,7 +876,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public override List<FilterParameter> getFilterParameters() {
+                public static List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -857,7 +894,7 @@ namespace PhotoEditor {
                 };
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -878,7 +915,7 @@ namespace PhotoEditor {
                 };
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -904,7 +941,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public override List<FilterParameter> getFilterParameters() {
+                public static List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -928,7 +965,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public override List<FilterParameter> getFilterParameters() {
+                public static List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -939,7 +976,7 @@ namespace PhotoEditor {
                 name = "Sobel";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -1005,7 +1042,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public override List<FilterParameter> getFilterParameters() {
+                public static List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -1029,7 +1066,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public override List<FilterParameter> getFilterParameters() {
+                public static List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -1040,7 +1077,7 @@ namespace PhotoEditor {
                 name = "Scharr";
             }
 
-            public override List<FilterParameter> getFilterParameters() {
+            public static List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };

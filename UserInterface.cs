@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PhotoEditor.UserInterface;
 
+using PhotoEditor.SpotFilters;
+using PhotoEditor.MatrixFilters;
+using PhotoEditor.AdvancedFilters;
+
 namespace PhotoEditor {
     public partial class UserInterface : Form {
 
@@ -50,7 +54,7 @@ namespace PhotoEditor {
                     string input_text = current_text_box.Text;
 
                     if (string.IsNullOrEmpty(input_text)) {
-                        showError($"{param.param_name} field can not be empty!");
+                        showError($"{param.param_name} field can not be empty.");
                         input_is_valid = false;
                         break;
                     }
@@ -61,7 +65,7 @@ namespace PhotoEditor {
                         if (param.param_type == typeof(int)) {
                             value = int.Parse(input_text);
                             if ((int)value < (int)param.min_value || (int)value > (int)param.max_value) {
-                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}!");
+                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}.");
                                 input_is_valid = false;
                                 break;
                             }
@@ -69,7 +73,7 @@ namespace PhotoEditor {
                         else if (param.param_type == typeof(double)) {
                             value = double.Parse(input_text, System.Globalization.CultureInfo.InvariantCulture);
                             if ((double)value < (double)param.min_value || (double)value > (double)param.max_value) {
-                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}!");
+                                showError($"{param.param_name} must be between {param.min_value} and {param.max_value}.");
                                 input_is_valid = false;
                                 break;
                             }
@@ -212,44 +216,82 @@ namespace PhotoEditor {
         }
 
         private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.InversionFilter filter = new SpotFilters.InversionFilter();
-            FilterParametersForm form = new FilterParametersForm(filter.getFilterParameters(), filter.getName());
+            FilterParametersForm form = new FilterParametersForm(
+                InversionFilter.getFilterParameters(),
+                InversionFilter.getName()
+            );
             form.showParametersDialog();
+            InversionFilter filter = new InversionFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_GrayScale_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.GrayScaleFilter filter = new SpotFilters.GrayScaleFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                GrayScaleFilter.getFilterParameters(),
+                GrayScaleFilter.getName()
+            );
+            form.showParametersDialog();
+            GrayScaleFilter filter = new GrayScaleFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_Sepia_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.SepiaFilter filter = new SpotFilters.SepiaFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                SepiaFilter.getFilterParameters(),
+                SepiaFilter.getName()
+            );
+            form.showParametersDialog();
+            SepiaFilter filter = new SepiaFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_Brightness_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.BrightnessFilter filter = new SpotFilters.BrightnessFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                BrightnessFilter.getFilterParameters(),
+                BrightnessFilter.getName()
+            );
+            form.showParametersDialog();
+            BrightnessFilter filter = new BrightnessFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_Shift_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.ShiftFilter filter = new SpotFilters.ShiftFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                ShiftFilter.getFilterParameters(),
+                ShiftFilter.getName()
+            );
+            form.showParametersDialog();
+            ShiftFilter filter = new ShiftFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_GrayWorld_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.GrayWorldFilter filter = new SpotFilters.GrayWorldFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                GrayWorldFilter.getFilterParameters(),
+                GrayWorldFilter.getName()
+            );
+            form.showParametersDialog();
+            GrayWorldFilter filter = new GrayWorldFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_Autolevels_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.AutolevelsFilter filter = new SpotFilters.AutolevelsFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                AutolevelsFilter.getFilterParameters(),
+                AutolevelsFilter.getName()
+            );
+            form.showParametersDialog();
+            AutolevelsFilter filter = new AutolevelsFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
         private void SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            SpotFilters.PerfectReflectorFilter filter = new SpotFilters.PerfectReflectorFilter();
+            FilterParametersForm form = new FilterParametersForm(
+                PerfectReflectorFilter.getFilterParameters(),
+                PerfectReflectorFilter.getName()
+            );
+            form.showParametersDialog();
+            PerfectReflectorFilter filter = new PerfectReflectorFilter(form.getResultParameters());
             progress_updater.RunWorkerAsync(filter);
         }
 
@@ -270,8 +312,6 @@ namespace PhotoEditor {
 
         private void MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
             MatrixFilters.GaussianFilter filter = new MatrixFilters.GaussianFilter();
-            FilterParametersForm form = new FilterParametersForm(filter.getFilterParameters(), filter.getName());
-            form.showParametersDialog();
             progress_updater.RunWorkerAsync(filter);
         }
 
