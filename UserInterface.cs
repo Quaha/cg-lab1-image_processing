@@ -9,11 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PhotoEditor.UserInterface;
-using PhotoEditor;
 
-using PhotoEditor.SpotFilters;
-using PhotoEditor.MatrixFilters;
-using PhotoEditor.AdvancedFilters;
+using PhotoEditor;
+using SpotFilters;
+using MatrixFilters;
+using AdvancedFilters;
 using System.Globalization;
 
 namespace PhotoEditor {

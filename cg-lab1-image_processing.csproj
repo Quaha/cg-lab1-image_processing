@@ -64,9 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filters.cs" />
+    <Compile Include="AdvancedFilters.cs" />
+    <Compile Include="BaseFiltersClasses.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="MatrixFilters.cs" />
     <Compile Include="RawColor.cs" />
+    <Compile Include="SpotFilters.cs" />
     <Compile Include="UserInterface.cs">
       <SubType>Form</SubType>
     </Compile>
