@@ -29,11 +29,11 @@ namespace PhotoEditor {
 
     abstract class Filter {
 
-        protected static string name;
-
-        public static string getName() {
+        protected abstract string name { get; }
+        public string getName() {
             return name;
         }
+        public abstract List<FilterParameter> getFilterParameters();
 
         public static int clamp(int value, int min = 0, int max = 255) { // [min, max]
             if (value < min) {
@@ -98,15 +98,17 @@ namespace PhotoEditor {
 
         class InversionFilter : SpotFilter {
 
-            public InversionFilter(Dictionary<string, object> parameters) {
-                name = "Inversion";
-            }
+            protected override string name => "Inversion";
+
+            public InversionFilter(Dictionary<string, object> parameters) : this(
+                
+            ) {}
 
             public InversionFilter() {
-                name = "Inversion";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -125,15 +127,17 @@ namespace PhotoEditor {
 
         class GrayScaleFilter : SpotFilter {
 
-            public GrayScaleFilter(Dictionary<string, object> parameters) {
-                name = "GrayScale";
-            }
+            protected override string name => "GrayScale";
+
+            public GrayScaleFilter(Dictionary<string, object> parameters): this(
+                
+            ) {}
 
             public GrayScaleFilter() {
-                name = "GrayScale";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -154,21 +158,23 @@ namespace PhotoEditor {
 
         class SepiaFilter: SpotFilter {
 
+            protected override string name => "Sepia";
+
             protected int sepia_strength;
 
-            public SepiaFilter(Dictionary<string, object> parameters) {
-                name = "Sepia";
-
-                this.sepia_strength = (int)parameters["Sepia Strength"];
-            }
+            public SepiaFilter(Dictionary<string, object> parameters): this(
+                (int)parameters["Sepia Strength"]
+            ) {}
 
             public SepiaFilter(int sepia_strength = 20) {
-                name = "Sepia";
-
                 this.sepia_strength = sepia_strength;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public SepiaFilter() {
+
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Sepia Strength", typeof(int), 20, -255, 255)
                 };
@@ -189,21 +195,24 @@ namespace PhotoEditor {
 
         class BrightnessFilter: SpotFilter {
 
+            protected override string name => "Brightness";
+
             protected int brightness_delta;
 
-            public BrightnessFilter(Dictionary<string, object> parameters) {
-                name = "Brightness";
-
-                this.brightness_delta = (int)parameters["Brightness Delta"];
-            }
+            public BrightnessFilter(Dictionary<string, object> parameters): this (
+                (int)parameters["Brightness Delta"]
+            ) {}
 
             public BrightnessFilter(int brightness_delta = 20) {
-                name = "Brightness";
 
                 this.brightness_delta = brightness_delta;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public BrightnessFilter() {
+                
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("Brightness Delta", typeof(int), 20, -255, 255)
                 };
@@ -222,23 +231,24 @@ namespace PhotoEditor {
 
         class ShiftFilter : SpotFilter {
 
+            protected override string name => "Shift";
+
             protected int dx, dy;
 
-            public ShiftFilter(Dictionary<string, object> parameters) {
-                name = "Shift";
-
-                this.dx = -(int)parameters["X offset"];
-                this.dy = (int)parameters["Y offset"];
-            }
+            public ShiftFilter(Dictionary<string, object> parameters): this(
+                (int)parameters["X offset"],
+                (int)parameters["Y offset"]
+            ) {}
 
             public ShiftFilter(int dx = 0, int dy = 0) {
-                name = "Shift";
-
                 this.dx = -dx;
                 this.dy = dy;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public ShiftFilter() {
+
+            }
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
                     new FilterParameter("X offset", typeof(int), 0, int.MinValue, int.MaxValue),
                     new FilterParameter("Y offset", typeof(int), 0, int.MinValue, int.MaxValue)
@@ -264,18 +274,20 @@ namespace PhotoEditor {
 
         class GrayWorldFilter : SpotFilter {
 
+            protected override string name => "GrayWorld";
+
             protected float average_R, average_G, average_B;
             protected float average;
 
-            public GrayWorldFilter(Dictionary<string, object> parameters) {
-                name = "GrayWorld";
-            }
+            public GrayWorldFilter(Dictionary<string, object> parameters): this(
+            
+            ) {}
 
             public GrayWorldFilter() {
-                name = "GrayWorld";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -334,18 +346,20 @@ namespace PhotoEditor {
 
         class AutolevelsFilter: SpotFilter {
 
+            protected override string name => "Autolevels";
+
             protected float min_R, min_G, min_B;
             protected float max_R, max_G, max_B;
 
-            public AutolevelsFilter(Dictionary<string, object> parameters) {
-                name = "Autolevels";
-            }
+            public AutolevelsFilter(Dictionary<string, object> parameters): this(
+            
+            ) {}
 
             public AutolevelsFilter() {
-                name = "Autolevels";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -403,17 +417,19 @@ namespace PhotoEditor {
 
         class PerfectReflectorFilter: SpotFilter {
 
+            protected override string name => "PerfectReflector";
+
             protected int max_R, max_G, max_B;
 
-            public PerfectReflectorFilter(Dictionary<string, object> parameters) {
-                name = "PerfectReflector";
-            }
+            public PerfectReflectorFilter(Dictionary<string, object> parameters): this(
+                
+            ) {}
 
             public PerfectReflectorFilter() {
-                name = "PerfectReflector";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -508,8 +524,13 @@ namespace PhotoEditor {
     namespace MatrixFilters {
         class BlurFilter : MatrixFilter {
 
+            protected override string name => "Blur";
+
+            public BlurFilter(Dictionary<string, object> parameters): this(
+                (int)parameters["Radius"]    
+            ) {}
+
             public BlurFilter(int radius = 1) {
-                name = "Blur";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -526,17 +547,26 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public BlurFilter() {
+
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
-                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                    new FilterParameter("Radius", typeof(int), 1, 1, 10),
                 };
             }
         }
 
         class MotionBlurFilter : MatrixFilter {
 
+            protected override string name => "MotionBlur";
+
+            public MotionBlurFilter(Dictionary<string, object> parameters) : this(
+                (int)parameters["Radius"]
+            ) { }
+
             public MotionBlurFilter(int radius = 1) {
-                name = "MotionBlur";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -551,9 +581,13 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public MotionBlurFilter() {
+
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
-                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                    new FilterParameter("Radius", typeof(int), 1, 1, 10),
                 };
             }
 
@@ -561,8 +595,13 @@ namespace PhotoEditor {
 
         class MedianFilter : MatrixFilter {
 
+            protected override string name => "Median";
+
+            public MedianFilter(Dictionary<string, object> parameters) : this(
+                (int)parameters["Radius"]
+            ) { }
+
             public MedianFilter(int radius = 1) {
-                name = "Median";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -571,9 +610,13 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public MedianFilter() {
+
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
-                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
+                    new FilterParameter("Radius", typeof(int), 1, 1, 10),
                 };
             }
 
@@ -619,8 +662,14 @@ namespace PhotoEditor {
 
         class GaussianFilter : MatrixFilter {
 
+            protected override string name => "Gaussian";
+
+            public GaussianFilter(Dictionary<string, object> parameters) : this(
+                (int)parameters["Radius"],
+                (float)parameters["Sigma"]
+            ) { }
+
             public GaussianFilter(int radius = 3, float sigma = 2) {
-                name = "Gaussian";
 
                 kernel_width = radius * 2 + 1;
                 kernel_height = radius * 2 + 1;
@@ -650,18 +699,27 @@ namespace PhotoEditor {
                 base_dy = -radius;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public GaussianFilter() {
+
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
-                    new FilterParameter("Radius", typeof(int), 1, 0, 10),
-                    new FilterParameter("Sigma", typeof(int), 2, 1, 10),
+                    new FilterParameter("Radius", typeof(int), 1, 1, 10),
+                    new FilterParameter("Sigma", typeof(float), 2, 0.1, 10.0),
                 };
             }
         }
 
         class ExpansionFilter : MatrixFilter {
 
+            protected override string name => "Expansion";
+
+            public ExpansionFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
             public ExpansionFilter() {
-                name = "Expansion";
 
                 kernel_width = 3;
                 kernel_height = 3;
@@ -676,7 +734,7 @@ namespace PhotoEditor {
                 base_dy = -1;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -721,8 +779,13 @@ namespace PhotoEditor {
 
         class NarrowingFilter : MatrixFilter {
 
+            protected override string name => "Narrowing";
+
+            public NarrowingFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
             public NarrowingFilter() {
-                name = "Narrowing";
 
                 kernel_width = 3;
                 kernel_height = 3;
@@ -737,7 +800,7 @@ namespace PhotoEditor {
                 base_dy = -1;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -783,25 +846,38 @@ namespace PhotoEditor {
 
         class SharpnessFilter : MatrixFilter {
 
-            public SharpnessFilter() {
-                name = "Sharpness";
+            protected override string name => "Sharpness";
+
+            float sharpness_strength;
+
+            public SharpnessFilter(Dictionary<string, object> parameters) : this(
+                (float)parameters["Sharpness Strength"]
+            ) { }
+
+            public SharpnessFilter(float sharpness_strength = 1) {
+
+                this.sharpness_strength = sharpness_strength;
 
                 kernel_width = 3;
                 kernel_height = 3;
 
                 kernel = new float[,] {
-                    {  0, -1,  0 },
-                    { -1,  5, -1 },
-                    {  0, -1,  0 }
+                    {  0 * sharpness_strength, -1 * sharpness_strength,  0 * sharpness_strength },
+                    { -1 * sharpness_strength,  5 * sharpness_strength, -1 * sharpness_strength },
+                    {  0 * sharpness_strength, -1 * sharpness_strength,  0 * sharpness_strength }
                 };
 
                 base_dx = -1;
                 base_dy = -1;
             }
 
-            public static List<FilterParameter> getFilterParameters() {
-                return new List<FilterParameter> {
+            public SharpnessFilter() {
 
+            }
+
+            public override List<FilterParameter> getFilterParameters() {
+                return new List<FilterParameter> {
+                    new FilterParameter("Sharpness Strength", typeof(float), 1, 0.1, 10.0),
                 };
             }
         }
@@ -812,11 +888,13 @@ namespace PhotoEditor {
 
         protected class RangeCorrectionFilter : SpotFilter {
 
+            protected override string name => "RangeCorrection";
+
             public RangeCorrectionFilter() {
-                name = "RangeCorrectionFilter";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -860,7 +938,12 @@ namespace PhotoEditor {
 
         class EmbossingFilter: AdvancedFilter {
 
+            protected override string name => "Embossing";
+
             protected class EmbossingCoreFilter1 : MatrixFilter {
+
+                protected override string name => "EmbossingCoreFilter1";
+
                 public EmbossingCoreFilter1() {
 
                     kernel_width = 3;
@@ -876,15 +959,18 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public static List<FilterParameter> getFilterParameters() {
+                public override List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
                 }
             }
 
+            public EmbossingFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
             public EmbossingFilter() {
-                name = "Embossing";
 
                 filters = new Filter[] {
                     new EmbossingCoreFilter1(),
@@ -894,7 +980,7 @@ namespace PhotoEditor {
                 };
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -903,9 +989,13 @@ namespace PhotoEditor {
 
         class PaperFilter : AdvancedFilter {
 
-            public PaperFilter() {
-                name = "Paper";
+            protected override string name => "Paper";
 
+            public PaperFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
+            public PaperFilter() {
                 filters = new Filter[] {
                     new EmbossingFilter(),
                     new RangeCorrectionFilter(),
@@ -915,7 +1005,7 @@ namespace PhotoEditor {
                 };
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -924,7 +1014,11 @@ namespace PhotoEditor {
 
         class SobelFilter : AdvancedFilter {
 
+            protected override string name => "Sobel";
+
             protected class SobelCoreFilter1 : MatrixFilter {
+
+                protected override string name => "SobelCoreFilter1";
 
                 public SobelCoreFilter1() {
 
@@ -941,7 +1035,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public static List<FilterParameter> getFilterParameters() {
+                public override List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -949,6 +1043,8 @@ namespace PhotoEditor {
             }
 
             protected class SobelCoreFilter2 : MatrixFilter {
+
+                protected override string name => "SobelCoreFilter2";
 
                 public SobelCoreFilter2() {
 
@@ -965,18 +1061,22 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public static List<FilterParameter> getFilterParameters() {
+                public override List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
                 }
             }
 
+            public SobelFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
             public SobelFilter() {
-                name = "Sobel";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };
@@ -1025,7 +1125,11 @@ namespace PhotoEditor {
 
         class ScharrFilter : AdvancedFilter {
 
+            protected override string name => "Scharr";
+
             protected class ScharrCoreFilter1 : MatrixFilter {
+
+                protected override string name => "ScharrCoreFilter1";
 
                 public ScharrCoreFilter1() {
 
@@ -1042,7 +1146,7 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public static List<FilterParameter> getFilterParameters() {
+                public override List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
@@ -1050,6 +1154,8 @@ namespace PhotoEditor {
             }
 
             protected class ScharrCoreFilter2 : MatrixFilter {
+
+                protected override string name => "ScharrCoreFilter2";
 
                 public ScharrCoreFilter2() {
 
@@ -1066,18 +1172,22 @@ namespace PhotoEditor {
                     base_dy = -1;
                 }
 
-                public static List<FilterParameter> getFilterParameters() {
+                public override List<FilterParameter> getFilterParameters() {
                     return new List<FilterParameter> {
 
                     };
                 }
             }
 
+            public ScharrFilter(Dictionary<string, object> parameters) : this(
+
+            ) { }
+
             public ScharrFilter() {
-                name = "Scharr";
+
             }
 
-            public static List<FilterParameter> getFilterParameters() {
+            public override List<FilterParameter> getFilterParameters() {
                 return new List<FilterParameter> {
 
                 };

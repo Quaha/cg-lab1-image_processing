@@ -9,10 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PhotoEditor.UserInterface;
+using PhotoEditor;
 
 using PhotoEditor.SpotFilters;
 using PhotoEditor.MatrixFilters;
 using PhotoEditor.AdvancedFilters;
+using System.Globalization;
 
 namespace PhotoEditor {
     public partial class UserInterface : Form {
@@ -70,13 +72,22 @@ namespace PhotoEditor {
                                 break;
                             }
                         }
-                        else if (param.param_type == typeof(double)) {
-                            value = double.Parse(input_text, System.Globalization.CultureInfo.InvariantCulture);
-                            if ((double)value < (double)param.min_value || (double)value > (double)param.max_value) {
+                        else if (param.param_type == typeof(float)) {
+                            if (!float.TryParse(input_text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsedValue)) {
+                                showError($"Invalid format for {param.param_name}. Expected a valid floating-point number.");
+                                input_is_valid = false;
+                                break;
+                            }
+                            value = parsedValue;
+                            if (Convert.ToSingle(value) < Convert.ToSingle(param.min_value) ||
+                                Convert.ToSingle(value) > Convert.ToSingle(param.max_value)) {
                                 showError($"{param.param_name} must be between {param.min_value} and {param.max_value}.");
                                 input_is_valid = false;
                                 break;
                             }
+                        }
+                        else {
+                            throw new Exception("Unprocessed parameter type!");
                         }
                     }
                     catch {
@@ -91,7 +102,10 @@ namespace PhotoEditor {
                 }
 
                 if (input_is_valid) {
-                    form.DialogResult = DialogResult.OK;
+                    form.Close();
+                }
+                else {
+                    result_parameters = null;
                 }
             }
 
@@ -153,7 +167,7 @@ namespace PhotoEditor {
                     Dock = DockStyle.Fill
                 };
 
-                panel.Controls.Add(apply_button, 1, required_parameters.Count);
+                panel.Controls.Add(apply_button, 1, panel.RowCount - 1);
 
                 apply_button.Click += applyButton_Click; // Link button to the realization
 
@@ -215,139 +229,101 @@ namespace PhotoEditor {
             }
         }
 
+        private void applyFilter<T>() where T : Filter, new() {
+            T filter_object = new T();
+
+            List<FilterParameter> parameters = filter_object.getFilterParameters();
+            string filterName = filter_object.getName();
+
+            if (parameters.Count == 0) {
+                progress_updater.RunWorkerAsync(filter_object);
+            }
+            else {
+                FilterParametersForm form = new FilterParametersForm(parameters, filterName);
+                form.showParametersDialog();
+                Dictionary<string, object> resultParameters = form.getResultParameters();
+
+                if (resultParameters == null) return;
+
+                T filterWithParams = (T)Activator.CreateInstance(typeof(T), resultParameters);
+                progress_updater.RunWorkerAsync(filterWithParams);
+            }
+        }
+
         private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                InversionFilter.getFilterParameters(),
-                InversionFilter.getName()
-            );
-            form.showParametersDialog();
-            InversionFilter filter = new InversionFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<InversionFilter>();
         }
 
         private void SpotFilters_GrayScale_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                GrayScaleFilter.getFilterParameters(),
-                GrayScaleFilter.getName()
-            );
-            form.showParametersDialog();
-            GrayScaleFilter filter = new GrayScaleFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<GrayScaleFilter>();
         }
 
         private void SpotFilters_Sepia_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                SepiaFilter.getFilterParameters(),
-                SepiaFilter.getName()
-            );
-            form.showParametersDialog();
-            SepiaFilter filter = new SepiaFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<SepiaFilter>();
         }
 
         private void SpotFilters_Brightness_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                BrightnessFilter.getFilterParameters(),
-                BrightnessFilter.getName()
-            );
-            form.showParametersDialog();
-            BrightnessFilter filter = new BrightnessFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<BrightnessFilter>();
         }
 
         private void SpotFilters_Shift_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                ShiftFilter.getFilterParameters(),
-                ShiftFilter.getName()
-            );
-            form.showParametersDialog();
-            ShiftFilter filter = new ShiftFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<ShiftFilter>();
         }
 
         private void SpotFilters_GrayWorld_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                GrayWorldFilter.getFilterParameters(),
-                GrayWorldFilter.getName()
-            );
-            form.showParametersDialog();
-            GrayWorldFilter filter = new GrayWorldFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<GrayWorldFilter>();
         }
 
         private void SpotFilters_Autolevels_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                AutolevelsFilter.getFilterParameters(),
-                AutolevelsFilter.getName()
-            );
-            form.showParametersDialog();
-            AutolevelsFilter filter = new AutolevelsFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<AutolevelsFilter>();
         }
 
         private void SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            FilterParametersForm form = new FilterParametersForm(
-                PerfectReflectorFilter.getFilterParameters(),
-                PerfectReflectorFilter.getName()
-            );
-            form.showParametersDialog();
-            PerfectReflectorFilter filter = new PerfectReflectorFilter(form.getResultParameters());
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<PerfectReflectorFilter>();
         }
 
         private void MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.BlurFilter filter = new MatrixFilters.BlurFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<BlurFilter>();
         }
 
         private void MatrixFilters_MotionBlur_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.MotionBlurFilter filter = new MatrixFilters.MotionBlurFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<MotionBlurFilter>();
         }
 
         private void MatrixFilters_Median_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.MedianFilter filter = new MatrixFilters.MedianFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<MedianFilter>();
         }
 
         private void MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.GaussianFilter filter = new MatrixFilters.GaussianFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<GaussianFilter>();
         }
 
         private void MatrixFilters_Expansion_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.ExpansionFilter filter = new MatrixFilters.ExpansionFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<ExpansionFilter>();
         }
 
         private void MatrixFilters_Narrowing_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.NarrowingFilter filter = new MatrixFilters.NarrowingFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<NarrowingFilter>();
         }
 
         private void MatrixFilters_Sharpness_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            MatrixFilters.SharpnessFilter filter = new MatrixFilters.SharpnessFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<SharpnessFilter>();
         }
 
         private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            AdvancedFilters.EmbossingFilter filter = new AdvancedFilters.EmbossingFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<EmbossingFilter>();
         }
 
         private void AdvancedFilters_Paper_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            AdvancedFilters.PaperFilter filter = new AdvancedFilters.PaperFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<PaperFilter>();
         }
 
         private void AdvancedFilters_Sobel_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            AdvancedFilters.SobelFilter filter = new AdvancedFilters.SobelFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<SobelFilter>();
         }
 
         private void AdvancedFilters_Scharr_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            AdvancedFilters.ScharrFilter filter = new AdvancedFilters.ScharrFilter();
-            progress_updater.RunWorkerAsync(filter);
+            applyFilter<ScharrFilter>();
         }
 
         private void progressUpdater_DoWork(object sender, DoWorkEventArgs e) {
