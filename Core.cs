@@ -20,8 +20,6 @@ namespace Core {
             int s1, s2;
             int equal_cnt;
 
-            upper_buffer = new float[array.Length];
-
             int l = 0;
             int r = array.Length;
 

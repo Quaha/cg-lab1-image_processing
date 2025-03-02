@@ -57,12 +57,12 @@
             this.paperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sobelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scharrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.main_picture_box = new System.Windows.Forms.PictureBox();
             this.progress_updater = new System.ComponentModel.BackgroundWorker();
             this.imageProcessingProgressBar = new System.Windows.Forms.ProgressBar();
             this.cancelButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.main_picture_box)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -300,15 +300,15 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.main_picture_box.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Location = new System.Drawing.Point(0, 27);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1264, 615);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
+            this.main_picture_box.Location = new System.Drawing.Point(0, 27);
+            this.main_picture_box.Name = "pictureBox1";
+            this.main_picture_box.Size = new System.Drawing.Size(1264, 615);
+            this.main_picture_box.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.main_picture_box.TabIndex = 1;
+            this.main_picture_box.TabStop = false;
             // 
             // progress_updater
             // 
@@ -346,14 +346,14 @@
             this.ClientSize = new System.Drawing.Size(1264, 681);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.imageProcessingProgressBar);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.main_picture_box);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "UserInterface";
             this.Text = "PhotoEditor";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.main_picture_box)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -368,7 +368,7 @@
         private System.Windows.Forms.ToolStripMenuItem точечныеToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem инверсияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem матричныеToolStripMenuItem;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox main_picture_box;
         private System.ComponentModel.BackgroundWorker progress_updater;
         private System.Windows.Forms.ProgressBar imageProcessingProgressBar;
         private System.Windows.Forms.Button cancelButton;

@@ -45,7 +45,7 @@ namespace AdvancedFilters {
 
             filters = new Filter[] {
                     new EmbossingCoreFilter1(),
-                    new RangeCorrectionFilter(),
+                    new __RangeCorrectionFilter(),
                     new BrightnessFilter(100),
                     new GrayScaleFilter(),
                 };
@@ -68,9 +68,9 @@ namespace AdvancedFilters {
         public PaperFilter() {
             filters = new Filter[] {
                     new EmbossingFilter(),
-                    new RangeCorrectionFilter(),
+                    new __RangeCorrectionFilter(),
                     new AutolevelsFilter(),
-                    new RangeCorrectionFilter(),
+                    new __RangeCorrectionFilter(),
                     new InversionFilter(),
                 };
         }

@@ -35,6 +35,7 @@ namespace PhotoEditor {
         public string getName() {
             return name;
         }
+
         public abstract List<FilterParameter> getFilterParameters();
 
         public static int clamp(int value, int min = 0, int max = 255) { // [min, max]
@@ -76,6 +77,11 @@ namespace PhotoEditor {
             RawColor[,] result_image = new RawColor[width, height];
 
             for (int i = 0; i < width; i++) {
+
+                if (worker.CancellationPending) {
+                    return null;
+                }
+
                 worker.ReportProgress(100 * i / width);
                 for (int j = 0; j < height; j++) {
                     result_image[i, j] = calculateNewPixelColor(source_image, i, j);
@@ -140,7 +146,7 @@ namespace PhotoEditor {
         protected Filter[] filters;
 
         protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
-            return new RawColor(0, 0, 0, 0);
+            return new RawColor(0, 0, 0, 0); // Just a filler function
         }
 
         public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
@@ -149,12 +155,20 @@ namespace PhotoEditor {
 
             RawColor[,] result_image = new RawColor[width, height]; 
             for (int i = 0; i < width; i++) {
+
+                if (worker.CancellationPending) {
+                    return null;
+                }
+
                 for (int j = 0; j < height; j++) {
                     result_image[i, j] = source_image[i, j];
                 }
             }
 
             for (int i = 0; i < filters.Length; i++) {
+                if (worker.CancellationPending) {
+                    return null;
+                }
                 result_image = filters[i].processImageRaw(result_image, worker);
             }
 

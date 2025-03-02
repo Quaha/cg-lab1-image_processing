@@ -391,11 +391,11 @@ namespace SpotFilters {
         }
     }
 
-    class RangeCorrectionFilter : SpotFilter {
+    class __RangeCorrectionFilter : SpotFilter {
 
         protected override string name => "RangeCorrection";
 
-        public RangeCorrectionFilter() {
+        public __RangeCorrectionFilter() {
 
         }
 

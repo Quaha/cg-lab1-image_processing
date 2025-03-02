@@ -73,12 +73,12 @@ namespace PhotoEditor {
                             }
                         }
                         else if (param.param_type == typeof(float)) {
-                            if (!float.TryParse(input_text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsedValue)) {
+                            if (!float.TryParse(input_text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed_value)) {
                                 showError($"Invalid format for {param.param_name}. Expected a valid floating-point number.");
                                 input_is_valid = false;
                                 break;
                             }
-                            value = parsedValue;
+                            value = parsed_value;
                             if (Convert.ToSingle(value) < Convert.ToSingle(param.min_value) ||
                                 Convert.ToSingle(value) > Convert.ToSingle(param.max_value)) {
                                 showError($"{param.param_name} must be between {param.min_value} and {param.max_value}.");
@@ -143,7 +143,6 @@ namespace PhotoEditor {
                         AutoSize = true,
                         Anchor = AnchorStyles.Right
                     };
-
                     TextBox text_box = new TextBox {
                         Text = required_parameters[i].default_value.ToString(),
                         Dock = DockStyle.Fill
@@ -179,6 +178,27 @@ namespace PhotoEditor {
             }
         }
 
+        private void applyFilter<T>() where T : Filter, new() {
+            T filter_object = new T();
+
+            List<FilterParameter> parameters = filter_object.getFilterParameters();
+            string filterName = filter_object.getName();
+
+            if (parameters.Count == 0) {
+                progress_updater.RunWorkerAsync(filter_object);
+            }
+            else {
+                FilterParametersForm form = new FilterParametersForm(parameters, filterName);
+                form.showParametersDialog();
+                Dictionary<string, object> result_parameters = form.getResultParameters();
+
+                if (result_parameters == null) return;
+
+                T filter_with_parameters = (T)Activator.CreateInstance(typeof(T), result_parameters);
+                progress_updater.RunWorkerAsync(filter_with_parameters);
+            }
+        }
+
         public UserInterface() {
             InitializeComponent();
         }
@@ -191,8 +211,8 @@ namespace PhotoEditor {
 
                 if (dialog.ShowDialog() == DialogResult.OK) {
                     image = new Bitmap(dialog.FileName);
-                    pictureBox1.Image = image;
-                    pictureBox1.Refresh();
+                    main_picture_box.Image = image;
+                    main_picture_box.Refresh();
                 }
             }
         }
@@ -226,27 +246,6 @@ namespace PhotoEditor {
 
                     image.Save(dialog.FileName, format);
                 }
-            }
-        }
-
-        private void applyFilter<T>() where T : Filter, new() {
-            T filter_object = new T();
-
-            List<FilterParameter> parameters = filter_object.getFilterParameters();
-            string filterName = filter_object.getName();
-
-            if (parameters.Count == 0) {
-                progress_updater.RunWorkerAsync(filter_object);
-            }
-            else {
-                FilterParametersForm form = new FilterParametersForm(parameters, filterName);
-                form.showParametersDialog();
-                Dictionary<string, object> resultParameters = form.getResultParameters();
-
-                if (resultParameters == null) return;
-
-                T filterWithParams = (T)Activator.CreateInstance(typeof(T), resultParameters);
-                progress_updater.RunWorkerAsync(filterWithParams);
             }
         }
 
@@ -339,8 +338,8 @@ namespace PhotoEditor {
 
         private void progressUpdater_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (!e.Cancelled) {
-                pictureBox1.Image = image;
-                pictureBox1.Refresh();
+                main_picture_box.Image = image;
+                main_picture_box.Refresh();
             }
             imageProcessingProgressBar.Value = 0;
         }
