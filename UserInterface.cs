@@ -113,7 +113,7 @@ namespace PhotoEditor {
                 Dictionary<string, object> result = new Dictionary<string, object>();
 
                 form = new Form {
-                    Text = filter_name + " Filter",
+                    Text = filter_name,
                     FormBorderStyle = FormBorderStyle.FixedSingle,
                     MaximizeBox = false,
                     AutoSize = true,
@@ -254,86 +254,110 @@ namespace PhotoEditor {
             }
         }
 
-        private void SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        // ----== <Filters> ==----
+
+        private void Filters_SpotFilters_Inversion_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<InversionFilter>();
         }
 
-        private void SpotFilters_GrayScale_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_GrayScale_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<GrayScaleFilter>();
         }
 
-        private void SpotFilters_Sepia_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_Sepia_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<SepiaFilter>();
         }
 
-        private void SpotFilters_Brightness_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_Brightness_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<BrightnessFilter>();
         }
 
-        private void SpotFilters_Shift_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            applyFilter<ShiftFilter>();
-        }
-
-        private void SpotFilters_GrayWorld_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_GrayWorld_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<GrayWorldFilter>();
         }
 
-        private void SpotFilters_Autolevels_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_Autolevels_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<AutolevelsFilter>();
         }
 
-        private void SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<PerfectReflectorFilter>();
         }
 
-        private void SpotFilters_ColorShift_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_SpotFilters_ColorShift_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<ColorShiftFilter>();
         }
 
-        private void MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<BlurFilter>();
         }
 
-        private void MatrixFilters_MotionBlur_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_MotionBlur_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<MotionBlurFilter>();
         }
 
-        private void MatrixFilters_Median_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Median_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<MedianFilter>();
         }
 
-        private void MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Gaussian_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<GaussianFilter>();
         }
 
-        private void MatrixFilters_Expansion_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Expansion_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<ExpansionFilter>();
         }
 
-        private void MatrixFilters_Narrowing_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Narrowing_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<NarrowingFilter>();
         }
 
-        private void MatrixFilters_Sharpness_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_MatrixFilters_Sharpness_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<SharpnessFilter>();
         }
 
-        private void AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_AdvancedFilters_Embossing_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<EmbossingFilter>();
         }
 
-        private void AdvancedFilters_Paper_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_AdvancedFilters_Paper_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<PaperFilter>();
         }
 
-        private void AdvancedFilters_Sobel_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_AdvancedFilters_Sobel_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<SobelFilter>();
         }
 
-        private void AdvancedFilters_Scharr_ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Filters_AdvancedFilters_Scharr_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<ScharrFilter>();
         }
 
+        // ----== <Edit> ==----
+        private void Edit_Shift_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<ShiftFilter>();
+        }
+
+        private void Edit_Reflection_Vertical_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<VerticalReflectionFilter>();
+        }
+
+        private void Edit_Reflection_Horizontal_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<HorizontalReflectionFilter>();
+        }
+
+        private void Edit_Rotate_90ToTheLeft_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<Rotate90ToTheLeftFilter>();
+        }
+
+        private void Edit_Rotate_90ToTheRight_ToolStripMenuItem_Click(object sender, EventArgs e) {
+
+        }
+
+        private void Edit_Rotate_180_ToolStripMenuItem2_Click(object sender, EventArgs e) {
+            applyFilter<Rotate180Filter>();
+        }
+
+        // ----== <Other> ==----
         private void progressUpdater_DoWork(object sender, DoWorkEventArgs e) {
             Bitmap new_image = ((Filter)e.Argument).processImage(image, progress_updater);
             if (progress_updater.CancellationPending != true) {

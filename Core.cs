@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace Core {
     class Algorithms {
 
-        public static float findOrderStatistic(float[] array, int k) {
+        public static void swap<T>(ref T a, ref T b) {
+            T temp = a;
+            a = b;
+            b = temp;
+        }
+
+        public static float findOrderStatistic(float[] array, int k) { // QuickSelect
 
             float[] buffer = new float[array.Length];
             for (int i = 0; i < array.Length; i++) {
                 buffer[i] = array[i];
             }
-
-            float[] lower_buffer = new float[array.Length];
-            float[] upper_buffer = new float[array.Length];
-
-            int s1, s2;
-            int equal_cnt;
 
             int l = 0;
             int r = array.Length;
@@ -30,50 +30,56 @@ namespace Core {
                 int p = random.Next(l, r);
                 float x = buffer[p];
 
-                s1 = 0;
-                s2 = 0;
+                swap(ref buffer[p], ref buffer[r - 1]);
 
-                equal_cnt = 0;
+                int l1 = l;
+                int r1 = r - 1;
 
-                for (int i = l; i < r; i++) {
-                    if (buffer[i] < x) {
-                        lower_buffer[s1++] = buffer[i];
+                while (l1 < r1) {
+                    while (l1 < r1 && buffer[l1] < x) {
+                        ++l1;
                     }
-                    else if (buffer[i] > x) {
-                        upper_buffer[s2++] = buffer[i];
+
+                    while (l1 < r1 && buffer[r1] >= x) {
+                        --r1;
                     }
-                    else {
-                        equal_cnt++;
+
+                    if (l1 < r1) {
+                        swap(ref buffer[l1], ref buffer[r1]);
                     }
                 }
 
-                if (k < s1) {
+                if (k <= r1 - l) {
+                    r = r1 - 1;
+                    continue;
+                }
 
-                    l = 0;
-                    r = s1;
+                int l2 = r1;
+                int r2 = r - 1;
 
-                    for (int i = 0; i < s1; i++) {
-                        buffer[i] = lower_buffer[i];
+                while (l2 < r2) {
+
+                    while (l2 < r2 && buffer[l2] == x) {
+                        ++l2;
                     }
 
-                }
-                else if (k >= s1 + equal_cnt) {
-                    l = s1 + equal_cnt;
-                    r = s1 + equal_cnt + s2;
-
-                    for (int i = 0; i < s2; i++) {
-                        buffer[s1 + equal_cnt + i] = upper_buffer[i];
+                    while (l2 < r2 && buffer[r2] > x) {
+                        --r2;
                     }
 
-                    k -= s1 + equal_cnt;
+                    if (l2 < r2) {
+                        swap(ref buffer[l2], ref buffer[r2]);
+                    }
                 }
-                else {
+
+                if (k <= r2 - l) {
                     return x;
                 }
+
+                l = l2;
             }
 
             return buffer[l];
-
         }
     }
 

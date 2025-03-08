@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace SpotFilters {
 
+    // ----== <Filters> ==----
+
     class InversionFilter : SpotFilter {
 
         protected override string name => "Inversion";
@@ -137,49 +139,6 @@ namespace SpotFilters {
                                                  source_color.R + brightness_delta,
                                                  source_color.G + brightness_delta,
                                                  source_color.B + brightness_delta);
-            return result_color;
-        }
-    }
-
-    class ShiftFilter : SpotFilter {
-
-        protected override string name => "Shift";
-
-        protected int dx, dy;
-
-        public ShiftFilter(Dictionary<string, object> parameters) : this(
-            (int)parameters["X offset"],
-            (int)parameters["Y offset"]
-        ) { }
-
-        public ShiftFilter(int dx = 0, int dy = 0) {
-            this.dx = -dx;
-            this.dy = dy;
-        }
-
-        public ShiftFilter() {
-
-        }
-        public override List<FilterParameter> getFilterParameters() {
-            return new List<FilterParameter> {
-                    new FilterParameter("X offset", typeof(int), 0, -10000, 10000),
-                    new FilterParameter("Y offset", typeof(int), 0, -10000, 10000)
-                };
-        }
-
-        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
-            int width = source_image.GetLength(0);
-            int height = source_image.GetLength(1);
-
-            RawColor result_color;
-
-            if (0 <= x + dx && x + dx < width && 0 <= y + dy && y + dy < height) {
-                result_color = source_image[x + dx, y + dy];
-            }
-            else {
-                result_color = new RawColor(0, 0, 0, 0);
-            }
-
             return result_color;
         }
     }
@@ -434,6 +393,232 @@ namespace SpotFilters {
             return result_color;
         }
     }
+
+    // ----== <Edit> ==----
+
+    class ShiftFilter : SpotFilter {
+
+        protected override string name => "Shift";
+
+        protected int dx, dy;
+
+        public ShiftFilter(Dictionary<string, object> parameters) : this(
+            (int)parameters["X offset"],
+            (int)parameters["Y offset"]
+        ) { }
+
+        public ShiftFilter(int dx = 0, int dy = 0) {
+            this.dx = -dx;
+            this.dy = dy;
+        }
+
+        public ShiftFilter() {
+
+        }
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+                    new FilterParameter("X offset", typeof(int), 0, -10000, 10000),
+                    new FilterParameter("Y offset", typeof(int), 0, -10000, 10000)
+                };
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color;
+
+            if (0 <= x + dx && x + dx < width && 0 <= y + dy && y + dy < height) {
+                result_color = source_image[x + dx, y + dy];
+            }
+            else {
+                result_color = new RawColor(0, 0, 0, 0);
+            }
+
+            return result_color;
+        }
+    }
+
+    class VerticalReflectionFilter : SpotFilter {
+
+        protected override string name => "VerticalReflection";
+
+
+        public VerticalReflectionFilter(Dictionary<string, object> parameters) : this(
+
+        ) { }
+
+        public VerticalReflectionFilter() {
+
+        }
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color = source_image[x, height - y - 1];
+            return result_color;
+        }
+    }
+
+    class HorizontalReflectionFilter : SpotFilter {
+
+        protected override string name => "HorizontalReflection";
+
+
+        public HorizontalReflectionFilter(Dictionary<string, object> parameters) : this(
+
+        ) { }
+
+        public HorizontalReflectionFilter() {
+
+        }
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color = source_image[width - x - 1, y];
+            return result_color;
+        }
+    }
+
+    class Rotate90ToTheLeftFilter : SpotFilter {
+
+        protected override string name => "Rotate90ToTheLeft";
+
+
+        public Rotate90ToTheLeftFilter(Dictionary<string, object> parameters) : this(
+
+        ) { }
+
+        public Rotate90ToTheLeftFilter() {
+
+        }
+
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
+
+        public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor[,] result_image = new RawColor[height, width];
+
+            for (int i = 0; i < width; i++) {
+
+                if (worker.CancellationPending) {
+                    return null;
+                }
+
+                worker.ReportProgress(100 * i / width);
+                for (int j = 0; j < height; j++) {
+                    result_image[j, i] = calculateNewPixelColor(source_image, i, j);
+                }
+            }
+
+            return result_image;
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color = source_image[x, height - y - 1];
+            return result_color;
+        }
+    }
+
+    class Rotate90ToTheRightFilter : SpotFilter {
+
+        protected override string name => "Rotate90ToTheRight";
+
+
+        public Rotate90ToTheRightFilter(Dictionary<string, object> parameters) : this(
+
+        ) { }
+
+        public Rotate90ToTheRightFilter() {
+
+        }
+
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
+
+        public override RawColor[,] processImageRaw(RawColor[,] source_image, BackgroundWorker worker) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor[,] result_image = new RawColor[height, width];
+
+            for (int i = 0; i < width; i++) {
+
+                if (worker.CancellationPending) {
+                    return null;
+                }
+
+                worker.ReportProgress(100 * i / width);
+                for (int j = 0; j < height; j++) {
+                    result_image[j, i] = calculateNewPixelColor(source_image, i, j);
+                }
+            }
+
+            return result_image;
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color = source_image[width - x - 1, y];
+            return result_color;
+        }
+    }
+
+    class Rotate180Filter : SpotFilter {
+
+        protected override string name => "Rotate180";
+
+
+        public Rotate180Filter(Dictionary<string, object> parameters) : this(
+
+        ) { }
+
+        public Rotate180Filter() {
+
+        }
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+
+            };
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            int width = source_image.GetLength(0);
+            int height = source_image.GetLength(1);
+
+            RawColor result_color = source_image[width - x - 1, height - y - 1];
+            return result_color;
+        }
+    }
+
+    // ----== <Others> ==----
 
     class __RangeCorrectionFilter : SpotFilter {
 

@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AdvancedFilters {
+
+    // ----== <Filters> ==----
+
     class EmbossingFilter : AdvancedFilter {
 
         protected override string name => "Embossing";

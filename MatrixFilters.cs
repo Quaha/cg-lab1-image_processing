@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MatrixFilters {
+
+    // ----== <Filters> ==----
+
     class BlurFilter : MatrixFilter {
 
         protected override string name => "Blur";
