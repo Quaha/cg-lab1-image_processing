@@ -78,6 +78,7 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(44)))), ((int)(((byte)(94)))));
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.файлToolStripMenuItem,
             this.фильтрыToolStripMenuItem,
@@ -95,6 +96,7 @@
             this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.открытьToolStripMenuItem,
             this.saveAsToolStripMenuItem});
+            this.файлToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(145)))), ((int)(((byte)(255)))));
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.файлToolStripMenuItem.Text = "File";
@@ -135,6 +137,7 @@
             this.точечныеToolStripMenuItem,
             this.матричныеToolStripMenuItem,
             this.advancedFiltersToolStripMenuItem});
+            this.фильтрыToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(145)))), ((int)(((byte)(255)))));
             this.фильтрыToolStripMenuItem.Name = "фильтрыToolStripMenuItem";
             this.фильтрыToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
             this.фильтрыToolStripMenuItem.Text = "Filters";
@@ -318,6 +321,7 @@
             this.reflectionToolStripMenuItem,
             this.turnToolStripMenuItem,
             this.shiftToolStripMenuItem1});
+            this.editToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(145)))), ((int)(((byte)(255)))));
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -328,20 +332,20 @@
             this.verticalToolStripMenuItem,
             this.horizontalToolStripMenuItem});
             this.reflectionToolStripMenuItem.Name = "reflectionToolStripMenuItem";
-            this.reflectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reflectionToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.reflectionToolStripMenuItem.Text = "Reflection";
             // 
             // verticalToolStripMenuItem
             // 
             this.verticalToolStripMenuItem.Name = "verticalToolStripMenuItem";
-            this.verticalToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.verticalToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.verticalToolStripMenuItem.Text = "Vertical";
             this.verticalToolStripMenuItem.Click += new System.EventHandler(this.Edit_Reflection_Vertical_ToolStripMenuItem_Click);
             // 
             // horizontalToolStripMenuItem
             // 
             this.horizontalToolStripMenuItem.Name = "horizontalToolStripMenuItem";
-            this.horizontalToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.horizontalToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.horizontalToolStripMenuItem.Text = "Horizontal";
             this.horizontalToolStripMenuItem.Click += new System.EventHandler(this.Edit_Reflection_Horizontal_ToolStripMenuItem_Click);
             // 
@@ -352,57 +356,62 @@
             this.toTheRightToolStripMenuItem,
             this.toolStripMenuItem2});
             this.turnToolStripMenuItem.Name = "turnToolStripMenuItem";
-            this.turnToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.turnToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.turnToolStripMenuItem.Text = "Turn";
             // 
             // toTheLeftToolStripMenuItem
             // 
             this.toTheLeftToolStripMenuItem.Name = "toTheLeftToolStripMenuItem";
-            this.toTheLeftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toTheLeftToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.toTheLeftToolStripMenuItem.Text = "90° to the left";
             this.toTheLeftToolStripMenuItem.Click += new System.EventHandler(this.Edit_Rotate_90ToTheLeft_ToolStripMenuItem_Click);
             // 
             // toTheRightToolStripMenuItem
             // 
             this.toTheRightToolStripMenuItem.Name = "toTheRightToolStripMenuItem";
-            this.toTheRightToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toTheRightToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.toTheRightToolStripMenuItem.Text = "90° to the right";
             this.toTheRightToolStripMenuItem.Click += new System.EventHandler(this.Edit_Rotate_90ToTheRight_ToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(153, 22);
             this.toolStripMenuItem2.Text = "180°";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.Edit_Rotate_180_ToolStripMenuItem2_Click);
             // 
             // shiftToolStripMenuItem1
             // 
             this.shiftToolStripMenuItem1.Name = "shiftToolStripMenuItem1";
-            this.shiftToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.shiftToolStripMenuItem1.Size = new System.Drawing.Size(127, 22);
             this.shiftToolStripMenuItem1.Text = "Shift";
             this.shiftToolStripMenuItem1.Click += new System.EventHandler(this.Edit_Shift_ToolStripMenuItem_Click);
             // 
             // undoToolStripMenuItem
             // 
+            this.undoToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(145)))), ((int)(((byte)(255)))));
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.undoToolStripMenuItem.Text = "Undo";
+            this.undoToolStripMenuItem.Click += new System.EventHandler(this.Undo_ToolStripMenuItem_Click);
             // 
             // redoToolStripMenuItem
             // 
+            this.redoToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(145)))), ((int)(((byte)(255)))));
             this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
             this.redoToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.redoToolStripMenuItem.Text = "Redo";
+            this.redoToolStripMenuItem.Click += new System.EventHandler(this.Redo_ToolStripMenuItem_Click);
             // 
             // main_picture_box
             // 
             this.main_picture_box.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.main_picture_box.Location = new System.Drawing.Point(12, 40);
+            this.main_picture_box.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(68)))), ((int)(((byte)(95)))), ((int)(((byte)(185)))));
+            this.main_picture_box.Location = new System.Drawing.Point(12, 37);
             this.main_picture_box.Name = "main_picture_box";
-            this.main_picture_box.Size = new System.Drawing.Size(1240, 602);
+            this.main_picture_box.Size = new System.Drawing.Size(1240, 606);
             this.main_picture_box.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.main_picture_box.TabIndex = 1;
             this.main_picture_box.TabStop = false;
@@ -419,17 +428,17 @@
             // 
             this.imageProcessingProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.imageProcessingProgressBar.Location = new System.Drawing.Point(0, 648);
+            this.imageProcessingProgressBar.Location = new System.Drawing.Point(12, 649);
             this.imageProcessingProgressBar.Name = "imageProcessingProgressBar";
-            this.imageProcessingProgressBar.Size = new System.Drawing.Size(1077, 33);
+            this.imageProcessingProgressBar.Size = new System.Drawing.Size(1065, 25);
             this.imageProcessingProgressBar.TabIndex = 2;
             // 
             // cancelButton
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.Location = new System.Drawing.Point(1083, 648);
+            this.cancelButton.Location = new System.Drawing.Point(1083, 649);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(181, 33);
+            this.cancelButton.Size = new System.Drawing.Size(169, 25);
             this.cancelButton.TabIndex = 3;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
@@ -439,7 +448,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(75)))), ((int)(((byte)(145)))));
             this.ClientSize = new System.Drawing.Size(1264, 681);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.imageProcessingProgressBar);

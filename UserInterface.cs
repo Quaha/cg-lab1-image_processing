@@ -17,9 +17,31 @@ using AdvancedFilters;
 using System.Globalization;
 
 namespace PhotoEditor {
+
     public partial class UserInterface : Form {
 
-        Bitmap image;
+        public class State {
+            protected Bitmap image;
+
+            public State(Bitmap image) {
+                this.image = image;
+            }
+
+            public Bitmap getImage() {
+                return image;
+            }
+
+        }
+
+        LinkedList<State> states;
+        LinkedListNode<State> curr_state;
+
+        Bitmap temp_image;
+
+        public UserInterface() {
+            InitializeComponent();
+            states = new LinkedList<State>();
+        }
 
         private static void showError(string message) {
             MessageBox.Show(
@@ -199,10 +221,6 @@ namespace PhotoEditor {
             }
         }
 
-        public UserInterface() {
-            InitializeComponent();
-        }
-
         private void File_Open_OpenImage_ToolStripMenuItem_Click(object sender, EventArgs e) {
             using (OpenFileDialog dialog = new OpenFileDialog()) {
 
@@ -210,13 +228,16 @@ namespace PhotoEditor {
                 dialog.Title = "Open an image in the editor";
 
                 if (dialog.ShowDialog() == DialogResult.OK) {
-                    image = new Bitmap(dialog.FileName);
+
+                    states.Clear();
+
+                    Bitmap image = new Bitmap(dialog.FileName);
                     if (image.Width > 0 && image.Height > 0) {
+                        states.AddLast(new State(image));
+                        curr_state = states.First;
+
                         main_picture_box.Image = image;
                         main_picture_box.Refresh();
-                    }
-                    else {
-                        image = null;
                     }
                 }
             }
@@ -225,7 +246,7 @@ namespace PhotoEditor {
         private void File_Save_SaveImageAs_ToolStripMenuItem_Click(object sender, EventArgs e) {
             using (SaveFileDialog dialog = new SaveFileDialog()) {
 
-                if (image == null) {
+                if (curr_state == null) {
                     showError("The image is missing!");
                     return;
                 }
@@ -249,7 +270,7 @@ namespace PhotoEditor {
                             break;
                     }
 
-                    image.Save(dialog.FileName, format);
+                    curr_state.Value.getImage().Save(dialog.FileName, format);
                 }
             }
         }
@@ -350,7 +371,7 @@ namespace PhotoEditor {
         }
 
         private void Edit_Rotate_90ToTheRight_ToolStripMenuItem_Click(object sender, EventArgs e) {
-
+            applyFilter<Rotate90ToTheRightFilter>();
         }
 
         private void Edit_Rotate_180_ToolStripMenuItem2_Click(object sender, EventArgs e) {
@@ -358,10 +379,29 @@ namespace PhotoEditor {
         }
 
         // ----== <Other> ==----
+
+        private void Undo_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (curr_state != null && curr_state.Previous != null) {
+                curr_state = curr_state.Previous;
+
+                main_picture_box.Image = curr_state.Value.getImage();
+                main_picture_box.Refresh();
+            }
+        }
+
+        private void Redo_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (curr_state != null && curr_state.Next != null) {
+                curr_state = curr_state.Next;
+
+                main_picture_box.Image = curr_state.Value.getImage();
+                main_picture_box.Refresh();
+            }
+        }
+
         private void progressUpdater_DoWork(object sender, DoWorkEventArgs e) {
-            Bitmap new_image = ((Filter)e.Argument).processImage(image, progress_updater);
+            Bitmap new_image = ((Filter)e.Argument).processImage(curr_state.Value.getImage(), progress_updater);
             if (progress_updater.CancellationPending != true) {
-                image = new_image;
+                temp_image = new_image;
             }
         }
 
@@ -371,7 +411,14 @@ namespace PhotoEditor {
 
         private void progressUpdater_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (!e.Cancelled) {
-                main_picture_box.Image = image;
+                while (states.Last != curr_state) {
+                    states.RemoveLast();
+                }
+
+                states.AddLast(new State(temp_image));
+                curr_state = states.Last;
+
+                main_picture_box.Image = temp_image;
                 main_picture_box.Refresh();
             }
             imageProcessingProgressBar.Value = 0;
