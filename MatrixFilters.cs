@@ -191,8 +191,8 @@ namespace MatrixFilters {
         public override List<FilterParameter> getFilterParameters() {
             return new List<FilterParameter> {
                     new FilterParameter("Radius", typeof(int), 1, 1, 10),
-                    new FilterParameter("Sigma", typeof(float), 2, 0.1, 10.0),
-                };
+                    new FilterParameter("Sigma", typeof(float), 2, 0.1, 100.0),
+            };
         }
     }
 

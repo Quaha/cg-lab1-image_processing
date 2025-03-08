@@ -211,8 +211,13 @@ namespace PhotoEditor {
 
                 if (dialog.ShowDialog() == DialogResult.OK) {
                     image = new Bitmap(dialog.FileName);
-                    main_picture_box.Image = image;
-                    main_picture_box.Refresh();
+                    if (image.Width > 0 && image.Height > 0) {
+                        main_picture_box.Image = image;
+                        main_picture_box.Refresh();
+                    }
+                    else {
+                        image = null;
+                    }
                 }
             }
         }
@@ -279,6 +284,10 @@ namespace PhotoEditor {
 
         private void SpotFilters_PerfectReflector_ToolStripMenuItem_Click(object sender, EventArgs e) {
             applyFilter<PerfectReflectorFilter>();
+        }
+
+        private void SpotFilters_ColorShift_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<ColorShiftFilter>();
         }
 
         private void MatrixFilters_Blur_ToolStripMenuItem_Click(object sender, EventArgs e) {

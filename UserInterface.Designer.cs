@@ -61,6 +61,7 @@
             this.progress_updater = new System.ComponentModel.BackgroundWorker();
             this.imageProcessingProgressBar = new System.Windows.Forms.ProgressBar();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.colorShiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.main_picture_box)).BeginInit();
             this.SuspendLayout();
@@ -90,7 +91,7 @@
             this.открытьToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openImageToolStripMenuItem});
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.открытьToolStripMenuItem.Text = "Open";
             // 
             // openImageToolStripMenuItem
@@ -105,13 +106,13 @@
             this.saveAsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveImageAsToolStripMenuItem});
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.saveAsToolStripMenuItem.Text = "Save";
             // 
             // saveImageAsToolStripMenuItem
             // 
             this.saveImageAsToolStripMenuItem.Name = "saveImageAsToolStripMenuItem";
-            this.saveImageAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveImageAsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.saveImageAsToolStripMenuItem.Text = "Save image as...";
             this.saveImageAsToolStripMenuItem.Click += new System.EventHandler(this.File_Save_SaveImageAs_ToolStripMenuItem_Click);
             // 
@@ -135,64 +136,65 @@
             this.shiftToolStripMenuItem,
             this.grayWorldToolStripMenuItem,
             this.autolevelsToolStripMenuItem,
-            this.perfectReflectorToolStripMenuItem});
+            this.perfectReflectorToolStripMenuItem,
+            this.colorShiftToolStripMenuItem});
             this.точечныеToolStripMenuItem.Name = "точечныеToolStripMenuItem";
-            this.точечныеToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.точечныеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.точечныеToolStripMenuItem.Text = "Spot Filters";
             // 
             // инверсияToolStripMenuItem
             // 
             this.инверсияToolStripMenuItem.Name = "инверсияToolStripMenuItem";
-            this.инверсияToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.инверсияToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.инверсияToolStripMenuItem.Text = "Inversion";
             this.инверсияToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Inversion_ToolStripMenuItem_Click);
             // 
             // grayScaleToolStripMenuItem
             // 
             this.grayScaleToolStripMenuItem.Name = "grayScaleToolStripMenuItem";
-            this.grayScaleToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.grayScaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.grayScaleToolStripMenuItem.Text = "GrayScale";
             this.grayScaleToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_GrayScale_ToolStripMenuItem_Click);
             // 
             // sepiaToolStripMenuItem
             // 
             this.sepiaToolStripMenuItem.Name = "sepiaToolStripMenuItem";
-            this.sepiaToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.sepiaToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.sepiaToolStripMenuItem.Text = "Sepia";
             this.sepiaToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Sepia_ToolStripMenuItem_Click);
             // 
             // brightnessToolStripMenuItem
             // 
             this.brightnessToolStripMenuItem.Name = "brightnessToolStripMenuItem";
-            this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.brightnessToolStripMenuItem.Text = "Brightness";
             this.brightnessToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Brightness_ToolStripMenuItem_Click);
             // 
             // shiftToolStripMenuItem
             // 
             this.shiftToolStripMenuItem.Name = "shiftToolStripMenuItem";
-            this.shiftToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.shiftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.shiftToolStripMenuItem.Text = "Shift";
             this.shiftToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Shift_ToolStripMenuItem_Click);
             // 
             // grayWorldToolStripMenuItem
             // 
             this.grayWorldToolStripMenuItem.Name = "grayWorldToolStripMenuItem";
-            this.grayWorldToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.grayWorldToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.grayWorldToolStripMenuItem.Text = "GrayWorld";
             this.grayWorldToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_GrayWorld_ToolStripMenuItem_Click);
             // 
             // autolevelsToolStripMenuItem
             // 
             this.autolevelsToolStripMenuItem.Name = "autolevelsToolStripMenuItem";
-            this.autolevelsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.autolevelsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autolevelsToolStripMenuItem.Text = "Autolevels";
             this.autolevelsToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_Autolevels_ToolStripMenuItem_Click);
             // 
             // perfectReflectorToolStripMenuItem
             // 
             this.perfectReflectorToolStripMenuItem.Name = "perfectReflectorToolStripMenuItem";
-            this.perfectReflectorToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.perfectReflectorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.perfectReflectorToolStripMenuItem.Text = "PerfectReflector";
             this.perfectReflectorToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_PerfectReflector_ToolStripMenuItem_Click);
             // 
@@ -207,7 +209,7 @@
             this.narrowingToolStripMenuItem,
             this.sharpnessToolStripMenuItem});
             this.матричныеToolStripMenuItem.Name = "матричныеToolStripMenuItem";
-            this.матричныеToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.матричныеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.матричныеToolStripMenuItem.Text = "Matrix Filters";
             // 
             // blurToolStripMenuItem
@@ -267,7 +269,7 @@
             this.sobelToolStripMenuItem,
             this.scharrToolStripMenuItem});
             this.advancedFiltersToolStripMenuItem.Name = "advancedFiltersToolStripMenuItem";
-            this.advancedFiltersToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.advancedFiltersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.advancedFiltersToolStripMenuItem.Text = "Advanced Filters";
             // 
             // embossingToolStripMenuItem
@@ -298,13 +300,13 @@
             this.scharrToolStripMenuItem.Text = "Scharr";
             this.scharrToolStripMenuItem.Click += new System.EventHandler(this.AdvancedFilters_Scharr_ToolStripMenuItem_Click);
             // 
-            // pictureBox1
+            // main_picture_box
             // 
             this.main_picture_box.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.main_picture_box.Location = new System.Drawing.Point(0, 27);
-            this.main_picture_box.Name = "pictureBox1";
+            this.main_picture_box.Name = "main_picture_box";
             this.main_picture_box.Size = new System.Drawing.Size(1264, 615);
             this.main_picture_box.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.main_picture_box.TabIndex = 1;
@@ -337,6 +339,13 @@
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.Cancel_Click);
+            // 
+            // colorShiftToolStripMenuItem
+            // 
+            this.colorShiftToolStripMenuItem.Name = "colorShiftToolStripMenuItem";
+            this.colorShiftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.colorShiftToolStripMenuItem.Text = "ColorShift";
+            this.colorShiftToolStripMenuItem.Click += new System.EventHandler(this.SpotFilters_ColorShift_ToolStripMenuItem_Click);
             // 
             // UserInterface
             // 
@@ -394,6 +403,7 @@
         private System.Windows.Forms.ToolStripMenuItem sharpnessToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveImageAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem colorShiftToolStripMenuItem;
     }
 }
 

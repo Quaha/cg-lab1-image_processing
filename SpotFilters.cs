@@ -162,8 +162,8 @@ namespace SpotFilters {
         }
         public override List<FilterParameter> getFilterParameters() {
             return new List<FilterParameter> {
-                    new FilterParameter("X offset", typeof(int), 0, int.MinValue, int.MaxValue),
-                    new FilterParameter("Y offset", typeof(int), 0, int.MinValue, int.MaxValue)
+                    new FilterParameter("X offset", typeof(int), 0, -10000, 10000),
+                    new FilterParameter("Y offset", typeof(int), 0, -10000, 10000)
                 };
         }
 
@@ -210,9 +210,9 @@ namespace SpotFilters {
             RawColor source_color = source_image[x, y];
 
             RawColor result_color = new RawColor(source_color.A,
-                                                (source_color.R * average / average_R),
-                                                (source_color.G * average / average_G),
-                                                (source_color.B * average / average_B));
+                                                 source_color.R * average / average_R,
+                                                 source_color.G * average / average_G,
+                                                 source_color.B * average / average_B);
             return result_color;
         }
 
@@ -237,9 +237,9 @@ namespace SpotFilters {
 
             int total = width * height;
 
-            average_R = sum_R / total;
-            average_G = sum_G / total;
-            average_B = sum_B / total;
+            average_R = Math.Max(sum_R, 1) / total;
+            average_G = Math.Max(sum_G, 1) / total;
+            average_B = Math.Max(sum_B, 1) / total;
 
             average = (average_R + average_G + average_B) / 3;
 
@@ -280,9 +280,9 @@ namespace SpotFilters {
         protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
             RawColor source_color = source_image[x, y];
 
-            float new_R = (255.0f * (source_color.R - min_R) / (max_R - min_R));
-            float new_G = (255.0f * (source_color.G - min_G) / (max_G - min_G));
-            float new_B = (255.0f * (source_color.B - min_B) / (max_B - min_B));
+            float new_R = (255.0f * (source_color.R - min_R) / Math.Max(1, (max_R - min_R)));
+            float new_G = (255.0f * (source_color.G - min_G) / Math.Max(1, (max_G - min_G)));
+            float new_B = (255.0f * (source_color.B - min_B) / Math.Max(1, (max_B - min_B)));
 
 
             RawColor result_color = new RawColor(source_color.A,
@@ -350,9 +350,9 @@ namespace SpotFilters {
         protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
             RawColor source_color = source_image[x, y];
 
-            int new_R = (int)(255 * source_color.R / max_R);
-            int new_G = (int)(255 * source_color.G / max_G);
-            int new_B = (int)(255 * source_color.B / max_B);
+            int new_R = (int)(255 * source_color.R / Math.Max(1, max_R));
+            int new_G = (int)(255 * source_color.G / Math.Max(1, max_G));
+            int new_B = (int)(255 * source_color.B / Math.Max(1, max_B));
 
 
             RawColor result_color = new RawColor(source_color.A,
@@ -388,6 +388,50 @@ namespace SpotFilters {
                 }
             }
             return result_image;
+        }
+    }
+
+    class ColorShiftFilter : SpotFilter {
+        protected override string name => "ColorShift";
+
+        protected int dA, dR, dG, dB;
+
+        public ColorShiftFilter(Dictionary<string, object> parameters) : this(
+            (int)parameters["dA"],
+            (int)parameters["dR"],
+            (int)parameters["dG"],
+            (int)parameters["dB"]
+        ) { }
+
+        public ColorShiftFilter(int dA = 0, int dR = 0, int dG = 0, int dB = 0) {
+            this.dA = dA;
+            this.dR = dR;
+            this.dG = dG;
+            this.dB = dB;
+        }
+
+        public ColorShiftFilter() {
+
+        }
+
+        public override List<FilterParameter> getFilterParameters() {
+            return new List<FilterParameter> {
+                new FilterParameter("dA", typeof(int), 0, -255, 255),
+                new FilterParameter("dR", typeof(int), 0, -255, 255),
+                new FilterParameter("dG", typeof(int), 0, -255, 255),
+                new FilterParameter("dB", typeof(int), 0, -255, 255)
+            };
+        }
+
+        protected override RawColor calculateNewPixelColor(RawColor[,] source_image, int x, int y) {
+            RawColor result_color = source_image[x, y];
+
+            result_color.A += dA;
+            result_color.R += dR;
+            result_color.G += dG;
+            result_color.B += dB;
+
+            return result_color;
         }
     }
 
