@@ -546,7 +546,6 @@ namespace SpotFilters {
 
         protected override string name => "Rotate90ToTheRight";
 
-
         public Rotate90ToTheRightFilter(Dictionary<string, object> parameters) : this(
 
         ) { }
