@@ -27,10 +27,10 @@ namespace Core {
 
             while (r - l > 1) {
 
-                int p = random.Next(l, r);
-                float x = buffer[p];
+                int pos = random.Next(l, r);
+                float x = buffer[pos];
 
-                swap(ref buffer[p], ref buffer[r - 1]);
+                swap(ref buffer[pos], ref buffer[r - 1]);
 
                 int l1 = l;
                 int r1 = r - 1;
@@ -49,7 +49,9 @@ namespace Core {
                     }
                 }
 
-                if (k <= r1 - l) {
+                // l1 == r1 and buffer[l1] >= x
+
+                if (k <= r1) {
                     r = r1 - 1;
                     continue;
                 }
@@ -72,7 +74,11 @@ namespace Core {
                     }
                 }
 
-                if (k <= r2 - l) {
+                // l1 == r1
+                // if exists one or more elements: > x, then buffer[l1] > x
+                // else buffer[l1] == x
+
+                if (k <= r2) {
                     return x;
                 }
 

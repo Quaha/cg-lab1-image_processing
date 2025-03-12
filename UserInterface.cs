@@ -329,8 +329,8 @@ namespace PhotoEditor {
             applyFilter<ExpansionFilter>();
         }
 
-        private void Filters_MatrixFilters_Narrowing_ToolStripMenuItem_Click(object sender, EventArgs e) {
-            applyFilter<NarrowingFilter>();
+        private void Filters_MatrixFilters_Erosion_ToolStripMenuItem_Click(object sender, EventArgs e) {
+            applyFilter<ErosionFilter>();
         }
 
         private void Filters_MatrixFilters_Sharpness_ToolStripMenuItem_Click(object sender, EventArgs e) {

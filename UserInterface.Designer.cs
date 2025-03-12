@@ -267,7 +267,7 @@
             this.narrowingToolStripMenuItem.Name = "narrowingToolStripMenuItem";
             this.narrowingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.narrowingToolStripMenuItem.Text = "Narrowing";
-            this.narrowingToolStripMenuItem.Click += new System.EventHandler(this.Filters_MatrixFilters_Narrowing_ToolStripMenuItem_Click);
+            this.narrowingToolStripMenuItem.Click += new System.EventHandler(this.Filters_MatrixFilters_Erosion_ToolStripMenuItem_Click);
             // 
             // sharpnessToolStripMenuItem
             // 

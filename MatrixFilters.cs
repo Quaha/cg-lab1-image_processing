@@ -265,15 +265,15 @@ namespace MatrixFilters {
         }
     }
 
-    class NarrowingFilter : MatrixFilter {
+    class ErosionFilter : MatrixFilter {
 
-        protected override string name => "Narrowing";
+        protected override string name => "Erosion";
 
-        public NarrowingFilter(Dictionary<string, object> parameters) : this(
+        public ErosionFilter(Dictionary<string, object> parameters) : this(
 
         ) { }
 
-        public NarrowingFilter() {
+        public ErosionFilter() {
 
             kernel_width = 3;
             kernel_height = 3;
